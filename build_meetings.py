@@ -12,14 +12,9 @@ load_dotenv(find_dotenv())
 
 def main():
     parameters, datapackage, resources = ingest()
-    stats = {
-        "total meetings built": 0,
-        "total committees built": 0
-    }
+    stats = {}
     aggregations = {
-        "stats": stats,
-        "knesset_num": {},
-        "committee_id": {}
+        "stats": stats
     }
     jinja_env = get_jinja_env()
     committees = {}

@@ -6,7 +6,7 @@ warning() { echo "WARNING: ${*}"; }
 info() { echo "INFO: ${*}"; }
 debug() { [ "${UPV_DEBUG}" == "0" ] || echo "DEBUG: ${*}"; }
 
-success() { echo "Great Success"; echo; echo_trim "${1}"; }
+success() { echo "Great Success"; echo; echo_trim "${1}"; echo; }
 
 strict_warning() {
     if [ "${UPV_STRICT}" == "1" ]; then

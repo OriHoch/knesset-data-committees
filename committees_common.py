@@ -39,7 +39,6 @@ def get_committee_name(committee):
 
 
 def get_committee_detail_context(committee, descriptor, aggregations):
-    aggregations["stats"]["total committees built"] += 1
     return get_context({"source_committee_row": committee,
                         "source_committee_schema": descriptor["schema"],
                         "name": get_committee_name(committee),
