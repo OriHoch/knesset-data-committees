@@ -1,0 +1,70 @@
+download:
+  description: download all the source committees data to allow quick building and aggregations from a local copy
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: https://minio.oknesset.org/committees/datapackage.json
+      resource: .*
+  - run: dump.to_path
+    parameters:
+      out-path: data/committees
+
+join-meetings:
+  description: join the committee meeting resources to form a single resource
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: committee_meeting_protocols_parsed
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: kns_cmtsessionitem
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: kns_committeesession
+  - run: stream_remote_resources
+  - run: join
+    parameters:
+      source:
+        name: committee_meeting_protocols_parsed
+        key: ["kns_session_id"]
+        delete: true
+      target:
+        name: kns_committeesession
+        key: ["CommitteeSessionID"]
+      fields:
+        protocol_object_name:
+        protocol_extension:
+        text_object_name:
+        parts_object_name:
+  - run: join
+    parameters:
+      source:
+        name: kns_cmtsessionitem
+        key: ["CommitteeSessionID"]
+        delete: true
+      target:
+        name: kns_committeesession
+        key: ["CommitteeSessionID"]
+      fields:
+        topics:
+          name: Name
+          aggregate: array
+  - run: dump.to_path
+    parameters:
+      out-path: data/committee-meetings
+
+build:
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: kns_committee
+  - run: load_resource
+    parameters:
+      url: data/committee-meetings/datapackage.json
+      resource: kns_committeesession
+  - run: stream_remote_resources
+  - run: build_meetings
