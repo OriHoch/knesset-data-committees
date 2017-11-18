@@ -27,4 +27,7 @@ dotenv -f "upv/github-travis/.env" -qnever set "GIT_CONFIG_USER" "${GIT_CONFIG_U
 dotenv -f "upv/github-travis/.env" -qnever set "GIT_CONFIG_EMAIL" "${GIT_CONFIG_EMAIL}"
 ) >/dev/null
 
+! ./upv.sh --debug --pull && echo "Failed upv pull" && exit 1
+! ./upv.sh --debug . ls -lah && echo "Failed to bootstrap the upv environment" && exit 1
+
 exit 0

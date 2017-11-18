@@ -286,19 +286,19 @@ upv_build_docker() {
     local LAST_BUILD_TAG=`dotenv_get "${MODULE_PATH}/.env" UPV_LAST_BUILD_TAG`
     debug "`dumpenv MODULE_PATH BUILD_ARGS PULLED_TAG DOCKER_FILE LAST_BUILD_TAG`" >/dev/stderr
     local CACHE_FROM=""
-    if [ "${UPV_STRICT}" == "1" ]; then
-        info "Strict mode: using --cache-from docker build arg" >/dev/stderr
-        # UPV_STRICT should be set by automated CI tools, to use specific cache sources for security
-        # for local development it's too cumbersome and causes long unnecesarry rebuilds
-        if [ "${PULLED_TAG}" != "" ]; then
-            local CACHE_FROM+=" --cache-from ${PULLED_TAG}"
-        fi
-        if [ "${LAST_BUILD_TAG}" != "" ]; then
-            local CACHE_FROM+=" --cache-from ${LAST_BUILD_TAG}"
-        fi
-    else
-        debug "Not using --cache-from docker build arg" >/dev/stderr
-    fi
+#    if [ "${UPV_STRICT}" == "1" ]; then
+#        info "Strict mode: using --cache-from docker build arg" >/dev/stderr
+#        # UPV_STRICT should be set by automated CI tools, to use specific cache sources for security
+#        # for local development it's too cumbersome and causes long unnecesarry rebuilds
+#        if [ "${PULLED_TAG}" != "" ]; then
+#            local CACHE_FROM+=" --cache-from ${PULLED_TAG}"
+#        fi
+#        if [ "${LAST_BUILD_TAG}" != "" ]; then
+#            local CACHE_FROM+=" --cache-from ${LAST_BUILD_TAG}"
+#        fi
+#    else
+#        debug "Not using --cache-from docker build arg" >/dev/stderr
+#    fi
     if [ "${DOCKER_FILE}" == "" ]; then
         if [ -f "${PWD}/${MODULE_PATH}/upv.Dockerfile" ]; then
             local DOCKER_FILE="upv.Dockerfile"

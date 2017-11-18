@@ -32,11 +32,8 @@ if [ ! -f "${UPV_WORKSPACE}/.travis.yml" ]; then
     echo "language: bash
 sudo: required
 script:
-# bootstrap the upv travis environment
 - upv/github-travis/upv_bootstrap_travis.sh
-# pull images to speed-up the build
-- ./upv.sh --pull
-# additional ./upv.sh calls" > "${UPV_WORKSPACE}/.travis.yml"
+# write additional ./upv.sh calls here" > "${UPV_WORKSPACE}/.travis.yml"
 fi
 
 success "Provisioned GitHub and Travis-CI integration"

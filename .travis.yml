@@ -1,11 +1,8 @@
 language: bash
 sudo: required
 script:
-# bootstrap the upv travis environment
 - upv/github-travis/upv_bootstrap_travis.sh
-# pull images to speed-up the build
-- ./upv.sh --pull
-# additional ./upv.sh calls
+# write additional ./upv.sh calls here
 - ./upv.sh . dpp "run ./download" && ./upv.sh . dpp "run ./join-meetings"
 - ./upv.sh upv/static-files build
 - ./upv.sh . dist_package
