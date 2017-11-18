@@ -36,12 +36,12 @@ upv_sh_preflight() {
         sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\";
         sudo apt-get update;
         sudo apt-get -y install docker-ce;
-        sudo usermod -aG docker $USER;
     " &&\
     preflight_check "which dotenv" "System Python package dotenv is required" "sudo pip install --upgrade pip setuptools && sudo pip install python-dotenv" &&\
     preflight_check "pip freeze | grep PyYAML" "System Python pip package pyyaml is required" "sudo pip install --upgrade pip setuptools && sudo pip install pyyaml" &&\
     preflight_check "which jq" "Jq is required" "sudo apt-get install jq" &&\
     preflight_check "which uuidgen" "uuid-runtime is required" "sudo apt-get install uuid-runtime"
+    preflight_check "docker ps" "sudo usermod -aG docker $USER;"
 }
 
 upv_sh_handle_pull() {
