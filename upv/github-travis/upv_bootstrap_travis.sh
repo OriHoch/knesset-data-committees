@@ -25,6 +25,9 @@ dotenv -f "upv/github-travis/.env" -qnever set "DOCKER_HUB_PASS" "${DOCKER_HUB_P
 dotenv -f "upv/github-travis/.env" -qnever set "GITHUB_TOKEN" "${GITHUB_TOKEN}"
 dotenv -f "upv/github-travis/.env" -qnever set "GIT_CONFIG_USER" "${GIT_CONFIG_USER}"
 dotenv -f "upv/github-travis/.env" -qnever set "GIT_CONFIG_EMAIL" "${GIT_CONFIG_EMAIL}"
+dotenv -f "upv/github-travis/.env" -qnever set "TRAVIS" "${TRAVIS}"
+dotenv -f "upv/github-travis/.env" -qnever set "TRAVIS_PULL_REQUEST" "${TRAVIS_PULL_REQUEST}"
+dotenv -f "upv/github-travis/.env" -qnever set "TRAVIS_BRANCH" "${TRAVIS_BRANCH}"
 ) >/dev/null
 
 ! ./upv.sh --debug --pull && echo "Failed upv pull" && exit 1
