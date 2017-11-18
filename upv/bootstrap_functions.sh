@@ -30,12 +30,13 @@ preflight_check() {
 
 upv_sh_preflight() {
     # check host environment for the minimal upv bootstrapping dependencies
-    preflight_check "which python2.7" "Python 2.7 is required" "sudo apt-get install python2.7" &&\
+    preflight_check "which python2.7" "Python 2.7 is required" "sudo apt-get install python2.7 python-pip" &&\
     preflight_check "which docker" "Docker is required" "
         curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -;
         sudo add-apt-repository \"deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable\";
         sudo apt-get update;
         sudo apt-get -y install docker-ce;
+        sudo usermod -aG docker $USER;
     " &&\
     preflight_check "which dotenv" "System Python package dotenv is required" "sudo pip install --upgrade pip setuptools && sudo pip install python-dotenv" &&\
     preflight_check "pip freeze | grep PyYAML" "System Python pip package pyyaml is required" "sudo pip install --upgrade pip setuptools && sudo pip install pyyaml" &&\

@@ -1,6 +1,7 @@
-ARG ROOT_UPV_TAG
-# the root upv framework image, pulled and tagged by ./upv.sh script
-FROM ${ROOT_UPV_TAG}
+#ARG ROOT_UPV_TAG
+## the root upv framework image, pulled and tagged by ./upv.sh script
+#FROM ${ROOT_UPV_TAG}
+FROM orihoch/knesset-data-committees-upv-root
 
 # Pythonz + Python 3.6.3 + related system dependencies
 RUN apt-get update &&\
