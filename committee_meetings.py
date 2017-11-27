@@ -21,7 +21,7 @@ def build_meeting_templates(resource, committees, jinja_env, descriptor, committ
                 update_meeting_aggregations(aggregations, meeting, True, committee_id, knesset_num)
                 build_template(jinja_env,
                                "committeemeeting_detail.html",
-                               get_meeting_context(meeting, committee, descriptor, committees_descriptor),
+                               get_meeting_context(meeting, committee, descriptor, committees_descriptor, aggregations),
                                get_meeting_path(meeting))
             else:
                 update_meeting_aggregations(aggregations, meeting, is_built=False, committee_id=committee_id, knesset_num=knesset_num)

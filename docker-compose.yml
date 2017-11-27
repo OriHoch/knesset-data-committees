@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+
+  # http://localhost:5000/
+  pipelines:
+    build: .
+    image: knesset-data-committees
+    ports:
+    - "5000:5000"
+    command:
+    - server
+    volumes:
+    - "dist:/pipelines/dist"
+
+volumes:
+  dist:
+

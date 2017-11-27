@@ -1,0 +1,127 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: committees-pipelines
+spec:
+  selector:
+    app: committees-pipelines
+  ports:
+  - port: 5000
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: committees-pipelines
+spec:
+  strategy: {type: Recreate}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: committees-pipelines
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-nodepool: committee-pipelines
+      containers:
+
+      - name: committees-pipelines
+        image: {{ .Values.image | quote }}
+        args:
+        - server
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: 0.05
+            memory: "100Mi"
+        volumeMounts:
+        - name: committees-data
+          mountPath: /pipelines/data
+        - name: committees-dist
+          mountPath: /pipelines/dist
+      - name: committees-pipelines-knesset-20
+        image: {{ .Values.image | quote }}
+        args:
+        - server
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: 0.05
+            memory: "100Mi"
+        volumeMounts:
+        - name: committees-data
+          mountPath: /pipelines/data
+        - name: committees-dist
+          mountPath: /pipelines/dist
+      - name: committees-pipelines-knesset-19
+        image: {{ .Values.image | quote }}
+        args:
+        - server
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: 0.05
+            memory: "100Mi"
+        volumeMounts:
+        - name: committees-data
+          mountPath: /pipelines/data
+        - name: committees-dist
+          mountPath: /pipelines/dist
+      - name: committees-pipelines-knesset-18
+        image: {{ .Values.image | quote }}
+        args:
+        - server
+        ports:
+        - containerPort: 5000
+        resources:
+          requests:
+            cpu: 0.05
+            memory: "100Mi"
+        volumeMounts:
+        - name: committees-data
+          mountPath: /pipelines/data
+        - name: committees-dist
+          mountPath: /pipelines/dist
+
+      # gcloud container - used to sync data to gs from the shared host directory
+      - name: gcloud
+        image: google/cloud-sdk:alpine
+        command:
+        - bash
+        - "-c"
+        - |
+          cd `mktemp -d`
+          echo $COMMITTEES_STORAGE_SERVICE_ACCOUNT_B64_KEY | base64 -d > key
+          gcloud auth activate-service-account --key-file=key
+          while true; do
+            sleep 300
+            gsutil -m rsync -r /pipelines/data gs://${BUCKET_NAME}/data
+            gsutil -m rsync -r /pipelines/dist gs://${BUCKET_NAME}/dist
+            gsutil -m acl ch -R -u AllUsers:R gs://${BUCKET_NAME}
+          done
+        env:
+        - name: COMMITTEES_STORAGE_SERVICE_ACCOUNT_B64_KEY
+          valueFrom:
+            secretKeyRef:
+              name: committees-pipelines
+              key: COMMITTEES_STORAGE_SERVICE_ACCOUNT_B64_KEY
+        - name: BUCKET_NAME
+          value: knesset-data-committees
+        resources:
+          requests:
+            cpu: 0.001
+            memory: "10Mi"
+        volumeMounts:
+        - name: committees-data
+          mountPath: /pipelines/data
+        - name: committees-dist
+          mountPath: /pipelines/dist
+
+      # shared volumes - for gs sync
+      volumes:
+      - name: committees-data
+        emptyDir: {}
+      - name: committees-dist
+        emptyDir: {}

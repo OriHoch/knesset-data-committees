@@ -18,7 +18,22 @@
             </div>
             <div class="span6 social-details">
                 <div class="spacer fill">
-
+                    <h2>ח"כים נוכחים</h2>
+                    <div class="card-party-members committee-members">
+                    {% for person in attending_persons %}
+                        {% if person.mk_individual %}
+                            <div class="party-member-photo">
+                                <a href="https://oknesset.org/member/{{person.mk_individual.mk_individual_id}}">
+                                    <img src="{{person.mk_individual.mk_individual_photo}}">
+                                    <span class="party-member-name ">{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}</span>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="party-member-photo">
+                                <span class="party-member-name ">{{person.FirstName}} {{person.LastName}}</span>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
                 </div>
             </div>
         </div>

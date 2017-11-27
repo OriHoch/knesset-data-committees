@@ -1,5 +1,5 @@
 from tabulator import Stream
-import os, requests, logging
+import os, requests, logging, re, json
 
 
 def get_speech_part_body(speech_part):
@@ -9,12 +9,14 @@ def get_speech_part_body(speech_part):
 def get_speech_parts_stream(**kwargs):
     stream = Stream(**kwargs)
     stream.open()
-    assert stream.headers == ['header', 'body'], "Invalid committee meeting protocol parts csv header: {}".format(kwargs["source"])
-    return stream
+    if stream.headers == ['header', 'body']:
+        return stream
+    else:
+        return None
 
 
 def get_speech_parts_source(meeting, parts_url):
-    if os.environ.get("OVERRIDE_ENABLE_LOCAL_CACHING") == "1":
+    if os.environ.get("ENABLE_LOCAL_CACHING") == "1":
         parts_file = "data/minio-cache/committees/{}".format(meeting["parts_object_name"])
         if not os.path.exists(parts_file):
             os.makedirs(os.path.dirname(parts_file), exist_ok=True)
@@ -45,8 +47,9 @@ def get_speech_parts(meeting):
         try:
             source_type, source = get_speech_parts_source(meeting, parts_url)
             stream = get_speech_parts_stream(source=source, headers=1)
-            yield from get_speech_part_contexts(stream)
-            stream.close()
+            if stream:
+                yield from get_speech_part_contexts(stream)
+                stream.close()
         except Exception:
             logging.exception("Failed to get speech parts for {}".format(meeting["parts_object_name"]))
             if source_type == "file" and os.path.exists(source):

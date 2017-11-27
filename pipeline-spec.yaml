@@ -10,6 +10,8 @@ download:
       out-path: data/committees
 
 join-meetings:
+  dependencies:
+  - pipeline: ./download
   description: join the committee meeting resources to form a single resource
   pipeline:
   - run: load_resource
@@ -56,12 +58,44 @@ join-meetings:
     parameters:
       out-path: data/committee-meetings
 
-build:
+download_members:
+  description: downloads members data
   pipeline:
+  - run: load_resource
+    parameters:
+      url: https://minio.oknesset.org/members/datapackage.json
+      resource: .*
+  - run: dump.to_path
+    parameters:
+      out-path: data/members
+
+build:
+  dependencies:
+  - pipeline: ./join-meetings
+  - pipeline: ./download_members
+  pipeline:
+  # all these tables are loaded into memory
   - run: load_resource
     parameters:
       url: data/committees/datapackage.json
       resource: kns_committee
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: kns_persontoposition
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: kns_person
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: kns_mksitecode
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: mk_individual
+  # committeesession is the only one that's streamed
   - run: load_resource
     parameters:
       url: data/committee-meetings/datapackage.json
