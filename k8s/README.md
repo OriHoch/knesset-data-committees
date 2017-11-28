@@ -63,3 +63,29 @@ export K8S_ENVIRONMENT=production
 ```
 
 (on first installation add the `--install` argument)
+
+## Updating on Open Knesset
+
+Install gcloud tools - used to sync the committees dist directory
+
+(It runs interactively and might ask some questions - you can accept all default)
+
+```
+ssh oknesset-web1 'curl https://sdk.cloud.google.com | bash'
+ssh oknesset-web2 'curl https://sdk.cloud.google.com | bash'
+```
+
+Authenticate and sync the files - repeat the same for both oknesset-web1 and oknesset-web2
+
+Will take some time, can be done in parallel on both servers
+
+```
+ssh oknesset-web1
+source google-cloud-sdk/path.bash.inc
+gcloud auth login
+sudo mkdir -p /oknesset_web/committees/dist
+sudo chown -R $USER /oknesset_web/committees
+gsutil -m rsync -r gs://knesset-data-committees/dist /oknesset_web/committees/dist
+```
+
+Once sync is done, [Open Knesset v4.7.0](https://github.com/hasadna/Open-Knesset/releases/tag/v4.7.0) will pick it up and serve it at https://oknesset.org/committees/index.html
