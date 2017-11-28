@@ -1,5 +1,9 @@
 # Knesset-Data-Committees Helm chart
 
+Currently the committees-pipelines pod is deployed on the knesset data cluster
+
+If you haven't made any changes in the code and just want to re-build the pages start a new node pool called "committee-pipelines" g1-small and the deployment will automatically start the pods on it
+
 ## Installation
 
 Provision the required resources to upload to google storage
