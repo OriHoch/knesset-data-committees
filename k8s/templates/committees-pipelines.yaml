@@ -92,6 +92,8 @@ spec:
         - bash
         - "-c"
         - |
+          echo "The path on gs was changed, now dist is at the root of the bucket - need to modify the following code"
+          exit 1
           cd `mktemp -d`
           echo $COMMITTEES_STORAGE_SERVICE_ACCOUNT_B64_KEY | base64 -d > key
           gcloud auth activate-service-account --key-file=key
