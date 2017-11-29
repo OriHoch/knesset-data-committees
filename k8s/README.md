@@ -70,6 +70,8 @@ export K8S_ENVIRONMENT=production
 
 ## Updating on Open Knesset
 
+**The path on gs was changed, now dist is at the root of the bucket - need to modify the following instructions accordingly**
+
 Install gcloud tools - used to sync the committees dist directory
 
 (It runs interactively and might ask some questions - you can accept all default)
