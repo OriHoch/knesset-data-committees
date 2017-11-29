@@ -95,3 +95,14 @@ gsutil -m rsync -r gs://knesset-data-committees/dist /oknesset_web/committees/di
 ```
 
 Once sync is done, [Open Knesset v4.7.0](https://github.com/hasadna/Open-Knesset/releases/tag/v4.7.0) will pick it up and serve it at https://oknesset.org/committees/index.html
+
+### Update kns_committee.csv on Open Knesset web servers
+
+run on oknesset-web1 and oknesset-web2
+
+```
+ssh oknesset-web1
+curl https://minio.oknesset.org/committees/kns_committee.csv | sudo tee /oknesset_web/kns_committee.csv
+```
+
+Most likely won't need to do again because open knesset committees are not updated
