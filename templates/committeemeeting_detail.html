@@ -4,7 +4,6 @@
     <li><a href="{{committeelist_url}}">ועדות</a> <span class="divider">/</span></li>
     <li><a href="{{committeelist_knesset_url}}">הכנסת ה-{{knesset_num}}</a> <span class="divider">/</span></li>
     <li><a href="{{committee_url}}">{{committee_name}}</a> <span class="divider">/</span></li>
-    <li class="active">{{meeting_datestring}}</li>
 {% endblock %}
 
 {% block divcontent %}
@@ -23,7 +22,7 @@
                     {% for person in attending_persons %}
                         {% if person.mk_individual %}
                             <div class="party-member-photo">
-                                <a href="https://oknesset.org/member/{{person.mk_individual.mk_individual_id}}">
+                                <a href="{{member_url | replace('{member_id}', person.mk_individual.mk_individual_id)}}">
                                     <img src="{{person.mk_individual.mk_individual_photo}}">
                                     <span class="party-member-name ">{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}</span>
                                 </a>
@@ -36,6 +35,7 @@
                     {% endfor %}
                 </div>
             </div>
+        </div>
         </div>
     </section>
     <div class="row">

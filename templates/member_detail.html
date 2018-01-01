@@ -1,0 +1,26 @@
+{% extends "site_base.html" %}
+
+{% block breadcrumbs %}
+    <li><a href="{{committeelist_knesset_url}}">הכנסת ה-{{knesset_num}}</a> <span class="divider">/</span></li>
+    <!--<li><a href="{{committee_url}}">{{committee_name}}</a> <span class="divider">/</span></li>-->
+    <li class="active">{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}</li>
+{% endblock %}
+
+{% block divcontent %}
+    <section class="card card-main">
+        <div class="row">
+            <div class="span2">
+                <div class="spacer">
+                    <img src="{{person.mk_individual.mk_individual_photo}}" alt="{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}">
+                </div>
+            </div>
+            <div class="span7 card-details">
+                <div class="spacer fill">
+                    <header>
+                        <h1>{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}</h1>
+                    </header>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}

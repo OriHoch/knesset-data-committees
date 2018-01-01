@@ -2,7 +2,7 @@
 from template_functions import get_context
 from speech_parts import get_speech_part_body, get_speech_parts
 import os
-from constants import MEETING_URL, COMMITTEE_LIST_KNESSET_URL, COMMITTEE_DETAIL_URL
+from constants import MEETING_URL, COMMITTEE_LIST_KNESSET_URL, COMMITTEE_DETAIL_URL, MEMBER_URL
 from members import get_committee_persons, get_meeting_attending_persons
 import datetime
 
@@ -69,6 +69,7 @@ def get_meeting_context(meeting, committee, meetings_descriptor, committees_desc
                            "committee_name": committee["Name"],
                            "meeting_datestring": meeting["StartDate"].strftime("%d/%m/%Y"),
                            "committee_url": COMMITTEE_DETAIL_URL.format(committee_id=committee["CommitteeID"]),
+                           "member_url": MEMBER_URL,
                            "knesset_num": committee["KnessetNum"],
                            "committeelist_knesset_url": COMMITTEE_LIST_KNESSET_URL.format(num=committee["KnessetNum"]),
                            "meeting_id": meeting["CommitteeSessionID"],
