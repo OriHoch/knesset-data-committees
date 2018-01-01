@@ -26,6 +26,15 @@ Download the source data from knesset-data-pipelines to data/committees
 dpp run ./download
 ```
 
+Install libleveldb1
+
+
+```
+sudo apt-get install libleveldb-dev libleveldb1
+sudo apt-get install python3.6 python3-pip python3.6-dev libleveldb-dev libleveldb1v5
+sudo pip3 install pipenv
+```
+
 Join the meeting resources (requires level db: `sudo apt-get install libleveldb-dev libleveldb1v5`)
 
 ```
