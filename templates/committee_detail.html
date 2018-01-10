@@ -48,10 +48,8 @@
                         <div class="item-context"><span class="label">{{meeting.date_string}}</span></div>
                             <p class="item-title underline">
                                  <a class="no-underline" href="{{meeting.url}}">{{meeting.title}}</a></p>
-                            {% if meeting.is_future_meeting %}
-                                <p><b>ישיבה עתידית</b></p>
-                            {% elif not meeting.has_protocol %}
-                                <p><b>טרם פורסם פרוטוקול</b></p>
+                            {% if not meeting.has_protocol %}
+                                <p><b>אין פרוטוקול</b></p>
                             {% endif %}
                         </li>
 

@@ -5,6 +5,7 @@ import os
 from constants import MEETING_URL, COMMITTEE_LIST_KNESSET_URL, COMMITTEE_DETAIL_URL, MEMBER_URL
 from members import get_committee_persons, get_meeting_attending_persons
 import datetime
+import logging
 
 
 def get_override_committee_ids(aggregations):
@@ -61,7 +62,11 @@ def has_protocol(meeting):
 
 
 def get_meeting_context(meeting, committee, meetings_descriptor, committees_descriptor, aggregations):
-    speech_parts_list = list(get_speech_parts(meeting))
+    try:
+        speech_parts_list = list(get_speech_parts(meeting))
+    except Exception as e:
+        logging.exception("failed to get speech parts for meeting {}".format(meeting["CommitteeSessionID"]))
+        speech_parts_list = []
     attending_persons = get_meeting_attending_persons(speech_parts_list, aggregations)
     context = get_context({"topics": get_meeting_topics(meeting),
                            "title": "ישיבה של {} בתאריך {}".format(committee["Name"],
