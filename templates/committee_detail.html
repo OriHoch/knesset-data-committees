@@ -21,7 +21,7 @@
                     {% for person in committee_persons %}
                         {% if person.mk_individual %}
                             <div class="party-member-photo">
-                                <a href="https://oknesset.org/member/{{person.mk_individual.mk_individual_id}}">
+                                <a href="{{member_url | replace('{member_id}', person.mk_individual.mk_individual_id)}}">
                                     <img src="{{person.mk_individual.mk_individual_photo}}">
                                     <span class="party-member-name ">{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}</span>
                                 </a>

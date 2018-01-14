@@ -1,5 +1,8 @@
 COMMITTEE_DETAIL_URL = "committees/{committee_id}.html"
 MEETING_URL = "meetings/{}/{}/{}.html"
 MEMBER_URL = "members/{member_id}.html"
+POSITION_URL = "positions/{position_id}.html"
+MINISTRY_URL = "ministries/{ministry_id}.html"
+FACTION_URL = "factions/{faction_id}.html"
 COMMITTEE_LIST_KNESSET_URL = "committees/knesset-{num}.html"
 COMMITTEES_INDEX_URL = "committees/index.html"
