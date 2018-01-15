@@ -64,6 +64,6 @@ You can also put the settings in a .env file and pipenv will automatically load 
 Start a local dev server to view the generated files:
 
 ```
-(cd dist; python -m http.server)
+(cd dist; python3 -m http.server)
 ```
 

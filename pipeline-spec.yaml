@@ -3,21 +3,69 @@ download:
   pipeline:
   - run: load_resource
     parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/download_document_committee_session/datapackage.json
+      resource: kns_documentcommitteesession
+  - run: rename_resource
+    parameters:
+      src: kns_documentcommitteesession
+      dst: download_document_committee_session
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_cmtsitecode/datapackage.json
+      resource: kns_cmtsitecode
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_committee/datapackage.json
+      resource: kns_committee
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_committeesession/datapackage.json
+      resource: kns_committeesession
+  - run: load_resource
+    parameters:
+      # TODO: get it from google storage
+      # url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_cmtsessionitem/datapackage.json
       url: https://minio.oknesset.org/committees/datapackage.json
-      resource: .*
+      resource: kns_cmtsessionitem
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_jointcommittee/datapackage.json
+      resource: kns_jointcommittee
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/meeting_protocols_parts/datapackage.json
+      resource: kns_documentcommitteesession
+  - run: rename_resource
+    parameters:
+      src: kns_documentcommitteesession
+      dst: meeting_protocols_parts
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/meeting_protocols_text/datapackage.json
+      resource: kns_documentcommitteesession
+  - run: rename_resource
+    parameters:
+      src: kns_documentcommitteesession
+      dst: meeting_protocols_text
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_documentcommitteesession/datapackage.json
+      resource: kns_documentcommitteesession
   - run: dump.to_path
     parameters:
       out-path: data/committees
 
 join-meetings:
-  dependencies:
-  - pipeline: ./download
   description: join the committee meeting resources to form a single resource
   pipeline:
   - run: load_resource
     parameters:
       url: data/committees/datapackage.json
-      resource: committee_meeting_protocols_parsed
+      resource: meeting_protocols_text
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: meeting_protocols_parts
   - run: load_resource
     parameters:
       url: data/committees/datapackage.json
@@ -26,21 +74,32 @@ join-meetings:
     parameters:
       url: data/committees/datapackage.json
       resource: kns_committeesession
-  - run: stream_remote_resources
   - run: join
     parameters:
       source:
-        name: committee_meeting_protocols_parsed
-        key: ["kns_session_id"]
+        name: meeting_protocols_text
+        key: ["CommitteeSessionID"]
         delete: true
       target:
         name: kns_committeesession
         key: ["CommitteeSessionID"]
       fields:
-        protocol_object_name:
+        filename:
         protocol_extension:
-        text_object_name:
-        parts_object_name:
+        text_filename:
+          name: parsed_filename
+  - run: join
+    parameters:
+      source:
+        name: meeting_protocols_parts
+        key: ["CommitteeSessionID"]
+        delete: true
+      target:
+        name: kns_committeesession
+        key: ["CommitteeSessionID"]
+      fields:
+        parts_filename:
+          name: parsed_filename
   - run: join
     parameters:
       source:
@@ -63,16 +122,29 @@ download_members:
   pipeline:
   - run: load_resource
     parameters:
-      url: https://minio.oknesset.org/members/datapackage.json
-      resource: .*
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/members/kns_mksitecode/datapackage.json
+      resource: kns_mksitecode
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/members/kns_person/datapackage.json
+      resource: kns_person
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/members/kns_persontoposition/datapackage.json
+      resource: kns_persontoposition
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/members/kns_position/datapackage.json
+      resource: kns_position
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/members/mk_individual/datapackage.json
+      resource: mk_individual
   - run: dump.to_path
     parameters:
       out-path: data/members
 
 build:
-  dependencies:
-  - pipeline: ./join-meetings
-  - pipeline: ./download_members
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
@@ -100,7 +172,19 @@ build:
     parameters:
       url: data/committee-meetings/datapackage.json
       resource: kns_committeesession
-  - run: stream_remote_resources
+#  - run: filter
+#    parameters:
+#      resources: ["kns_committeesession"]
+#      in:
+#      - CommitteeSessionID: 100017
+#      - CommitteeSessionID: 100018
+#      - CommitteeSessionID: 102295
+#      - CommitteeSessionID: 103192
+#      - CommitteeSessionID: 120135
+#      - CommitteeSessionID: 120312
+#      - CommitteeSessionID: 121048
+#      - CommitteeSessionID: 97424
+#      - CommitteeSessionID: 67368
   - run: build_meetings
 
 
@@ -113,3 +197,77 @@ create_members:
       resource: mk_individual
   - run: stream_remote_resources
   - run: build_members
+
+join-attendance-data:
+#  dependencies:
+#  - pipeline: ./join-meetings
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: data/committee-meetings/datapackage.json
+      resource: kns_committeesession
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: committee-meeting-attendees
+  - run: stream_remote_resources
+  - run: join
+    parameters:
+      source:
+        name: kns_committeesession
+        key: ["CommitteeSessionID"]
+        delete: true
+      target:
+        name: committee-meeting-attendees
+        key: ["meeting_id"]
+      full: false
+      fields:
+        meeting_topics:
+          name: topics
+        meeting_date:
+          name: StartDate
+        knesset_num:
+          name: KnessetNum
+  - run: sort
+    parameters:
+      resources: .*
+      sort-by: "{knesset_num}-{meeting_date}"
+  - run: dump.to_path
+    parameters:
+      out-path: data/attendance-joined-data
+
+split-attendance-data:
+#  dependencies:
+#  - pipeline: ./join-attendance-data
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: kns_committee
+  - run: load_resource
+    parameters:
+      url: data/attendance-joined-data/datapackage.json
+      resource: committee-meeting-attendees
+  - run: filter
+    parameters:
+      resources: ["committee-meeting-attendees"]
+      in:
+      - knesset_num: 20
+  - run: attendance
+  - run: dump.to_path
+    parameters:
+      out-path: data/attendance/knesset-20
+
+parse_presence_data:
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: mk_individual
+  - run: read_presence
+    parameters:
+      presence-file: data/members/presence.txt
+  - run: dump.to_path
+    parameters:
+      out-path: data/members/presence
+
