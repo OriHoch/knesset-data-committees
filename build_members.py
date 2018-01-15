@@ -18,7 +18,7 @@ def main():
                                 "first_name": member["mk_individual_first_name"],
                                 "last_name": member["mk_individual_name"],
                                 "photo": member["mk_individual_photo"],
-                                "positions": sorted(member["positions"], key=lambda p: p["finish_date"], reverse=True),
+                                "positions": sortpositions(member["positions"]),
                                 "position_url": POSITION_URL,
                                 "ministry_url":MINISTRY_URL,
                                 "faction_url": FACTION_URL},
@@ -29,6 +29,23 @@ def main():
         subprocess.check_call(["cp", "-rf", "static", "dist/"])
 
     spew({}, [], {})
+
+def sortpositions(positions):
+    try:
+        return sorted(positions, key=datekey, reverse=True)
+    except KeyError:
+        return positions
+
+def datekey(position):
+    key = "1970-01-01 00:00:00"
+
+    if position["finish_date"]:
+        key = position["finish_date"]
+    elif position["start_date"]:
+        key = position["start_date"]
+
+    return datetime.strptime(key, '%Y-%m-%d %H:%M:%S')
+
 
 def datetimeformat(value, format='%Y-%m-%d %H:%M:%S'):
     return datetime.strptime(value, '%Y-%m-%d %H:%M:%S').strftime(format)

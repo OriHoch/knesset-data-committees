@@ -35,8 +35,14 @@
                         <li>
                             <p class="item-action">
 								הכנסת ה{{position.KnessetNum}}
-								מ{{position.start_date|datetime('%d/%m/%Y')}}
-								עד {{position.finish_date|datetime('%d/%m/%Y')}}
+
+								{% if position.start_date %}
+									מ{{position.start_date|datetime('%d/%m/%Y')}}
+								{% endif %}
+
+								{% if position.finish_date %}
+									עד {{position.finish_date|datetime('%d/%m/%Y')}}
+								{% endif %}
                             </p>
                             <p class="item-title">
                                 <a href="{{position_url | replace('{position_id}', position.position_id)}}">
