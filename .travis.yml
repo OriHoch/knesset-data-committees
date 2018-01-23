@@ -5,7 +5,7 @@ env:
   - OPENSSL_CMD="openssl aes-256-cbc -K $encrypted_0ae085596938_key -iv $encrypted_0ae085596938_iv -in ./k8s-ops-secret.json.enc -out ./secret-k8s-ops.json -d"
   - OPS_REPO_SLUG=OriHoch/knesset-data-k8s
   - OPS_REPO_BRANCH=master
-  - CLOUDSDK_CORE_PROJECT=uumpa123
+  - CLOUDSDK_CORE_PROJECT=hasadna-oknesset
   - PROJECT_NAME=knesset-data-committees
   - HELM_UPGRADE_CMD="./helm_upgrade_external_chart.sh pipelines-jobs"
   matrix:
