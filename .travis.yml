@@ -9,7 +9,7 @@ env:
   - PROJECT_NAME=knesset-data-committees
   - HELM_UPGRADE_CMD="./helm_upgrade_external_chart.sh pipelines-jobs"
   matrix:
-  - DEPLOY_ENVIRONMENT=production DEPLOY_BRANCH=master
+  - DEPLOY_ENVIRONMENT=production DEPLOY_BRANCH=master DEPLOY_TAGS=true
 services:
 - docker
 script:
