@@ -23,9 +23,7 @@ download:
       resource: kns_committeesession
   - run: load_resource
     parameters:
-      # TODO: get it from google storage
-      # url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_cmtsessionitem/datapackage.json
-      url: https://minio.oknesset.org/committees/datapackage.json
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_cmtsessionitem/datapackage.json
       resource: kns_cmtsessionitem
   - run: load_resource
     parameters:

@@ -19,16 +19,14 @@ def main():
     committees_descriptor = None
     site_id_person_id = {}
     for descriptor, resource in zip(datapackage["resources"], resources):
-
-        # committees data - https://minio.oknesset.org/committees/aggregations/knesset_data_committees.html
+        # committees data
         if descriptor["name"] == "kns_committee":
             committees_descriptor = descriptor
             for committee in sorted(resource, key=lambda c: c["StartDate"], reverse=True):
                 committees[int(committee["CommitteeID"])] = committee
 
         # members data, it's not a lot of data, so we just load it all into memory
-        # TODO: optimize, it takes a bit too long and isn't very efficient
-        # https://minio.oknesset.org/members/aggregations/knesset_data_members.html
+        # TODO: use the new mk_individual joined data
         elif descriptor["name"] == "kns_persontoposition":
             load_kns_person_to_position_resource(resource, aggregations)
         elif descriptor["name"] == "kns_person":
