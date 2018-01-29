@@ -185,6 +185,17 @@ build:
 #      - CommitteeSessionID: 67368
   - run: build_meetings
 
+
+create_members:
+  pipeline:
+  # all these tables are loaded into memory
+  - run: load_resource
+    parameters:
+      url: data/members_aggr/datapackage.json
+      resource: mk_individual
+  - run: stream_remote_resources
+  - run: build_members
+
 join-attendance-data:
 #  dependencies:
 #  - pipeline: ./join-meetings

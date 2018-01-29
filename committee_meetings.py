@@ -2,7 +2,6 @@ import os, logging
 from template_functions import build_template
 from committees_common import get_meeting_context, get_meeting_path
 from aggregations import update_meeting_aggregations
-from constants import MEMBER_URL
 
 
 def build_meeting_templates(resource, committees, jinja_env, descriptor, committees_descriptor, aggregations):
@@ -23,20 +22,10 @@ def build_meeting_templates(resource, committees, jinja_env, descriptor, committ
                 and (override_meeting_ids or override_committee_ids or not override_knesset_nums or knesset_num in override_knesset_nums)
             ):
                 update_meeting_aggregations(aggregations, meeting, True, committee_id, knesset_num)
-
-                meeting_context = get_meeting_context(meeting, committee, descriptor, committees_descriptor, aggregations)
-
                 build_template(jinja_env,
                                "committeemeeting_detail.html",
-                               meeting_context,
+                               get_meeting_context(meeting, committee, descriptor, committees_descriptor, aggregations),
                                get_meeting_path(meeting))
-
-                for person in meeting_context["attending_persons"]:
-                    build_template(jinja_env,
-                                   "member_detail.html",
-                                   {"person": person,
-                                    "knesset_num": committee["KnessetNum"]},
-                                    MEMBER_URL.format(member_id=person["mk_individual"]["mk_individual_id"]))
 
             else:
                 update_meeting_aggregations(aggregations, meeting, is_built=False, committee_id=committee_id, knesset_num=knesset_num)

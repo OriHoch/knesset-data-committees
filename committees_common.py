@@ -1,11 +1,10 @@
 # common committee functions - imported from other files
 from template_functions import get_context
 from speech_parts import get_speech_part_body, get_speech_parts
-import os
+import os, logging
 from constants import MEETING_URL, COMMITTEE_LIST_KNESSET_URL, COMMITTEE_DETAIL_URL, MEMBER_URL
 from members import get_committee_persons, get_meeting_attending_persons
 import datetime
-import logging
 
 
 def get_override_committee_ids(aggregations):
@@ -50,6 +49,7 @@ def get_committee_detail_context(committee, descriptor, aggregations):
                         "meetings": get_committee_meeting_contexts(committee, aggregations),
                         "knesset_num": committee["KnessetNum"],
                         "committeelist_knesset_url": COMMITTEE_LIST_KNESSET_URL.format(num=committee["KnessetNum"]),
+                        "member_url": MEMBER_URL,
                         "committee_persons": get_committee_persons(committee, aggregations)})
 
 

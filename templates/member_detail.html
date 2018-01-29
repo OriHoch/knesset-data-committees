@@ -1,9 +1,7 @@
 {% extends "site_base.html" %}
 
 {% block breadcrumbs %}
-    <li><a href="{{committeelist_knesset_url}}">הכנסת ה-{{knesset_num}}</a> <span class="divider">/</span></li>
-    <!--<li><a href="{{committee_url}}">{{committee_name}}</a> <span class="divider">/</span></li>-->
-    <li class="active">{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}</li>
+    <li class="active">{{first_name}} {{last_name}}</li>
 {% endblock %}
 
 {% block divcontent %}
@@ -11,16 +9,69 @@
         <div class="row">
             <div class="span2">
                 <div class="spacer">
-                    <img src="{{person.mk_individual.mk_individual_photo}}" alt="{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}">
+                    <img src="{{photo}}" alt="{{first_name}} {{last_name}}">
                 </div>
             </div>
             <div class="span7 card-details">
                 <div class="spacer fill">
                     <header>
-                        <h1>{{person.mk_individual.mk_individual_first_name}} {{person.mk_individual.mk_individual_name}}</h1>
+                        <h1>{{first_name}} {{last_name}}</h1>
                     </header>
                 </div>
             </div>
         </div>
     </section>
+    <div class="row">
+        <div class="cards span9">
+            <section class="card card-list card-list-latest">
+                <header>
+                    <h2>
+                        <i class="fa fa-users"></i>
+                       	תפקדים
+                    </h2>
+                </header>
+                <ul id="recent-committees">
+                    {% for position in positions %}
+                        <li>
+                            <p class="item-action">
+								הכנסת ה{{position.KnessetNum}}
+
+								{% if position.start_date %}
+									מ{{position.start_date|datetime('%d/%m/%Y')}}
+								{% endif %}
+
+								{% if position.finish_date %}
+									עד {{position.finish_date|datetime('%d/%m/%Y')}}
+								{% endif %}
+                            </p>
+                            <p class="item-title">
+                                <a href="{{position_url | replace('{position_id}', position.position_id)}}">
+                                    {{position.position}}
+                                </a>
+                            </p>
+                            <p class="item-context">
+
+                                {% if position.FactionID %}
+                                    <a href="{{faction_url | replace('{faction_id}', position.FactionID)}}">
+                                		סיעה {{position.FactionName}}
+                                    </a>
+                                {% endif %}
+
+                                {% if position.GovMinistryID %}
+                                    <a href="{{ministry_url | replace('{ministry_id}', position.GovMinistryID)}}">
+	                                    {% if position.GovMinistryID == 28 %}
+	                                        {{position.GovMinistryName}}
+	                                    {% else %}
+	                                		משרד ממשלתי : {{position.GovMinistryName}}
+	                                    {% endif %}
+                                    </a>
+                                {% endif %}
+
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+    </div>
 {% endblock %}
