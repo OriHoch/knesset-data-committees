@@ -196,6 +196,19 @@ create_members:
   - run: stream_remote_resources
   - run: build_members
 
+
+build_positions:
+  pipeline:
+  # all these tables are loaded into memory
+  - run: load_resource
+    parameters:
+      url: data/members_aggr/datapackage.json
+      resource: mk_individual
+  - run: build_positions
+  - run: dump.to_path
+    parameters:
+      out-path: data/positions
+
 join-attendance-data:
 #  dependencies:
 #  - pipeline: ./join-meetings
