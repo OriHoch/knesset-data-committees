@@ -82,7 +82,6 @@ join-meetings:
         name: kns_committeesession
         key: ["CommitteeSessionID"]
       fields:
-        filename:
         protocol_extension:
         text_filename:
           name: parsed_filename
