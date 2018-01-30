@@ -141,6 +141,42 @@ download_members:
     parameters:
       out-path: data/members
 
+join-mks:
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: kns_mksitecode
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: kns_persontoposition
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: kns_position
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: kns_person
+  # join_mks iterates over this resource, it must be the last one
+  - run: load_resource
+    parameters:
+      url: data/members/datapackage.json
+      resource: mk_individual
+  - run: join_mks
+#    parameters:
+#      filter-knesset-num: [20]
+#      filter-is-current: true
+#  - run: filter
+#    parameters:
+#      resources: mk_individual
+#      in:
+#      - mk_individual_id: 109
+  - run: dump.to_path
+    parameters:
+      out-path: data/mks-joined
+
 build:
   pipeline:
   # all these tables are loaded into memory
@@ -190,9 +226,8 @@ create_members:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/members_aggr/datapackage.json
+      url: data/mks-joined/datapackage.json
       resource: mk_individual
-  - run: stream_remote_resources
   - run: build_members
 
 join-attendance-data:

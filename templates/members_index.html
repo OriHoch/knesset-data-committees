@@ -1,0 +1,27 @@
+{% extends "site_base.html" %}
+
+{% block breadcrumbs %}
+    <li class="active">ח"כים וסיעות</li>
+{% endblock %}
+
+{% block divcontent %}
+    <div class="row">
+        <div class="cards span8">
+            <section class="card card-list">
+                <header>
+                    <h1><i class="fa fa-users"></i>כל הח"כים</h1>
+                </header>
+                <ul>
+                    {% for mk in all_mks %}
+                        <li><p class="item-title">
+                            <a href="{{ mk.url }}">{{ mk.first_name }} {{ mk.last_name }}</a>
+                        </p></li>
+                    {% endfor %}
+                </ul>
+            </section>
+        </div>
+        <div class="span4">
+            <!-- stats -->
+        </div>
+    </div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 import os, logging
 import socket, datetime
-from constants import COMMITTEES_INDEX_URL
+from constants import COMMITTEES_INDEX_URL, MEMBERS_HOME_URL
 
 
 def get_jinja_env():
@@ -30,4 +30,5 @@ def get_context(context):
     return dict(context, **{"create_hostname": socket.getfqdn(),
                             "create_time": datetime.datetime.now().strftime("%H:%M"),
                             "create_date": datetime.datetime.now().strftime("%d/%m/%Y"),
-                            "committeelist_url": COMMITTEES_INDEX_URL})
+                            "committeelist_url": COMMITTEES_INDEX_URL,
+                            "members_home_url": MEMBERS_HOME_URL})
