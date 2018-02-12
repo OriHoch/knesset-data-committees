@@ -19,6 +19,10 @@ for descriptor, resource in zip(datapackage["resources"], resources):
                 "type": "string"
             },
             {
+                "name": "knesset_num",
+                "type": "integer"
+            },
+            {
                 "name": "mk_individual_ids",
                 "type": "array"
             }
@@ -35,7 +39,7 @@ for descriptor, resource in zip(datapackage["resources"], resources):
             "name": "GovMinistryName"
         },
         "FactionID": {
-            "type": "fraction",
+            "type": "faction",
             "name": "FactionName"
         },
         "CommitteeID": {
@@ -56,12 +60,13 @@ for descriptor, resource in zip(datapackage["resources"], resources):
 
                     if(key in data):
                         if id not in data[key]["mk_individual_ids"]:
-                            data[key]["mk_individual_ids"].append(id);
+                            data[key]["mk_individual_ids"].append(id)
                     else:
                         data[key] = {
                             "object_id": rows[position],
                             "object_type": settings["type"],
                             "object_name": rows[settings["name"]],
+                            "knesset_num": rows["KnessetNum"] if "KnessetNum" in rows else "",
                             "mk_individual_ids": [id]
                         }
 
