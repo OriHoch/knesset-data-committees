@@ -1,6 +1,7 @@
 {% extends "site_base.html" %}
 
 {% block breadcrumbs %}
+    <li><a href="{{members_home_url}}">ח"כים וסיעות</a> <span class="divider">/</span></li>
     <li class="active">{{first_name}} {{last_name}}</li>
 {% endblock %}
 
@@ -27,11 +28,12 @@
                 <header>
                     <h2>
                         <i class="fa fa-users"></i>
-                       	תפקדים
+                       	תפקידים
                     </h2>
                 </header>
                 <ul id="recent-committees">
                     {% for position in positions %}
+                        {% if position.FactionID or position.GovMinistryID or position.CommitteeID %}
                         <li>
                             <p class="item-action">
 								הכנסת ה{{position.KnessetNum}}
@@ -45,33 +47,46 @@
 								{% endif %}
                             </p>
                             <p class="item-title">
-                                <a href="{{position_url | replace('{position_id}', position.position_id)}}">
-                                    {{position.position}}
-                                </a>
+                                {% if position.FactionID %}
+                                    <!--<a href="{{faction_url | replace('{faction_id}', position.FactionID)}}">-->
+                                		{{position.FactionName}}
+                                    <!--</a>-->
+                                {% elif position.GovMinistryID %}
+                                    <!--<a href="{{ministry_url | replace('{ministry_id}', position.GovMinistryID)}}">-->
+	                                    {{position.GovMinistryName}}
+                                    <!--</a>-->
+                                {% elif position.CommitteeID %}
+                                    <!--<a href="{{committee_url | replace('{committee_id}', position.CommitteeID)}}">-->
+	                                    {{position.CommitteeName}}
+                                    <!--</a>-->
+                                {% endif %}
                             </p>
                             <p class="item-context">
-
-                                {% if position.FactionID %}
-                                    <a href="{{faction_url | replace('{faction_id}', position.FactionID)}}">
-                                		סיעה {{position.FactionName}}
-                                    </a>
-                                {% endif %}
-
-                                {% if position.GovMinistryID %}
-                                    <a href="{{ministry_url | replace('{ministry_id}', position.GovMinistryID)}}">
-	                                    {% if position.GovMinistryID == 28 %}
-	                                        {{position.GovMinistryName}}
-	                                    {% else %}
-	                                		משרד ממשלתי : {{position.GovMinistryName}}
-	                                    {% endif %}
-                                    </a>
-                                {% endif %}
-
+                                {{position.position}}
                             </p>
                         </li>
+                        {% endif %}
                     {% endfor %}
                 </ul>
             </section>
         </div>
     </div>
+{% endblock %}
+
+{% block data_sources %}
+    {{ super() }}
+    <p>להלן נתוני המקור כפי שהם מופיעים במאגרי המידע של הכנסת באמצעות ממשק מידע פרלמנטרי זמין - </p>
+    <p style="font-size:130%;"><u><b>ח"כ</b></u></p>
+    {% for field in source_member_schema.fields %}
+        {% if field.name == "positions" %}
+            <b>positions</b>:
+            <ul>{% for position in positions %}
+                <li>{{position}}</li>
+            {% endfor %}</ul>
+        {% elif field.description and source_member_row[field.name] %}
+            <b>{{field.description}}</b>: <p>{{source_member_row[field.name]}}</p>
+        {% else %}
+            <b>{{field.name}}</b>: <p>{{source_member_row[field.name]}}</p>
+        {% endif %}
+    {% endfor %}
 {% endblock %}
