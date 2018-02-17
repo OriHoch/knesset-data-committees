@@ -82,6 +82,7 @@ join-meetings:
         name: kns_committeesession
         key: ["CommitteeSessionID"]
       fields:
+        filename:
         protocol_extension:
         text_filename:
           name: parsed_filename
@@ -229,6 +230,19 @@ create_members:
       url: data/mks-joined/datapackage.json
       resource: mk_individual
   - run: build_members
+
+
+build_positions:
+  pipeline:
+  # all these tables are loaded into memory
+  - run: load_resource
+    parameters:
+      url: data/members_aggr/datapackage.json
+      resource: mk_individual
+  - run: build_positions
+  - run: dump.to_path
+    parameters:
+      out-path: data/positions
 
 join-attendance-data:
 #  dependencies:
