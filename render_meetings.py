@@ -12,6 +12,7 @@ stats = {
     "kns_committees": 0,
     "mk_individuals": 0,
     "meetings": 0,
+    "failed meetings": 0
 }
 meeting_stats = {}
 
@@ -67,11 +68,15 @@ def get_meeting_context(meeting):
 
 
 for meeting in next(resources):
-    build_template(jinja_env,
-                   "committeemeeting_detail.html",
-                   get_meeting_context(meeting),
-                   get_meeting_path(meeting))
-    stats["meetings"] += 1
+    try:
+        build_template(jinja_env,
+                       "committeemeeting_detail.html",
+                       get_meeting_context(meeting),
+                       get_meeting_path(meeting))
+        stats["meetings"] += 1
+    except:
+        logging.exception("Failed to render meeting {}".format(meeting["CommitteeSessionID"]))
+        stats["failed meetings"] += 1
 
 
 def get_stats_resource():
