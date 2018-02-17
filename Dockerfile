@@ -13,6 +13,7 @@ COPY static/ /pipelines/static
 COPY *.py /pipelines/
 COPY *.yaml /pipelines/
 COPY templates/ /pipelines/templates
+COPY *.sh /pipelines/
 
 ENV PIPELINES_SCRIPT="cd /pipelines && (source ./pipelines_script.sh)"
 ENV RUN_PIPELINE_CMD=run_pipeline
