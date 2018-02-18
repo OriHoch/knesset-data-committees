@@ -77,35 +77,7 @@ build:
     parameters:
       url: data/committee-meetings/datapackage.json
       resource: kns_committeesession
-  # filter by committee id (committee 2026 has only 3 meetings)
-#  - {run: filter, parameters: {resources: ["kns_committee"], in: [{CommitteeID: 2026}]}}
-#  - {run: filter, parameters: {resources: ["kns_committeesession"], in: [{CommitteeID: 2026}]}}
-  # filter by knesset num
-#  - {run: filter, parameters: {resources: ["kns_committee"], in: [{KnessetNum: 20}]}}
-#  - {run: filter, parameters: {resources: ["kns_committeesession"], in: [{KnessetNum: 20}]}}
-  # filter by session ids
-#  - {run: filter, parameters: {resources: ["kns_committeesession"], in: [{CommitteeSessionID: 2016849},{CommitteeSessionID: 2018367}]}}
-#  - run: filter_mks
-#    parameters:
-#      KnessetNum: [20]
-#    code: |
-#      from datapackage_pipelines.wrapper import ingest, spew
-#      parameters, datapackage, resources = ingest()
-#      def get_resource(resource):
-#        for mk_individual in resource:
-#          ok = False
-#          for position in mk_individual["positions"]:
-#            if position.get("KnessetNum") and position["KnessetNum"] in parameters["KnessetNum"]:
-#              ok = True
-#          if ok:
-#            yield mk_individual
-#      def get_resources():
-#        for descriptor, resource in zip(datapackage["resources"], resources):
-#          if descriptor["name"] == "mk_individual":
-#            yield get_resource(resource)
-#          else:
-#            yield resource
-#      spew(datapackage, get_resources())
+  - run: build_meetings
   - run: dump.to_path
     parameters:
       out-path: data/build_meetings

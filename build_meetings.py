@@ -1,29 +1,80 @@
 from datapackage_pipelines.wrapper import ingest, spew
-import logging
+import os
 
 
-parameters, datapackage, resources = ingest()
+parameters, datapackage, resources, stats = ingest() + ({},)
+if os.environ.get("TEST_DATA") == "1" or parameters.get("test-data"):
+    parameters.update(**{"committee-ids": [2026, 2022, 1013, 1012, 2017],
+                         "max-meetings-per-committee": 5,})
 
 
-kns_committees = {}
-for kns_committee in next(resources):
-    kns_committees[int(kns_committee["CommitteeID"])] = kns_committee
+stats.update(**{"committees": 0, "skipped committees": 0})
+all_committee_ids = []
 
 
-mk_individuals = {}
-for mk_individual in next(resources):
-    mk_individuals[int(mk_individual["mk_individual_id"])] = mk_individual
+# filter committees by committee ids and/or knesset-nums
+def get_committees(committees):
+    for committee in committees:
+        if all([not parameters.get("committee-ids") or committee["CommitteeID"] in parameters["committee-ids"],
+                not parameters.get("knesset-nums") or committee["KnessetNum"] in parameters["knesset-nums"]]):
+            yield committee
+            stats["committees"] += 1
+            all_committee_ids.append(committee["CommitteeID"])
+        else:
+            stats["skipped committees"] += 1
 
 
-def get_meeting(meeting):
-    meeting["committee"] = kns_committees[meeting["CommitteeID"]]
+stats.update(**{"mks": 0, "skipped mks": 0})
 
 
-def get_resource():
-    for meeting in next(resources):
-        if meeting["CommitteeID"] in kns_committees:
-            logging.info(meeting)
-            yield get_meeting(meeting)
+# filter mks by knesset-nums
+def get_mks(mks):
+    for mk in mks:
+        if parameters.get("knesset-nums"):
+            position_included = False
+            for position in mk["positions"]:
+                if position.get("KnessetNum") and position["KnessetNum"] in parameters["KnessetNum"]:
+                    position_included = True
+                    break
+            if position_included:
+                yield mk
+                stats["mks"] += 1
+            else:
+                stats["skipped mks"] += 1
+        else:
+            yield mk
+            stats["mks"] += 1
 
 
-spew(dict(datapackage, resources=[datapackage["resources"][2]]), [get_resource()])
+stats.update(**{"meetings": 0, "skipped meetings": 0})
+
+
+# filter meetings for the filtered committees
+def get_meetings(resource):
+    committee_meeting_nums = {}
+    for row in resource:
+        if row["CommitteeID"] in all_committee_ids:
+            if not parameters.get("max-meetings-per-committee") or committee_meeting_nums.setdefault(row["CommitteeID"], 0) < parameters["max-meetings-per-committee"]:
+                yield row
+                stats["meetings"] += 1
+                committee_meeting_nums.setdefault(row["CommitteeID"], 0)
+                committee_meeting_nums[row["CommitteeID"]] += 1
+            else:
+                stats["skipped meetings"] += 1
+        else:
+            stats["skipped meetings"] += 1
+
+
+def get_resources():
+    for descriptor, resource in zip(datapackage["resources"], resources):
+        if descriptor["name"] == "kns_committee":
+            yield get_committees(resource)
+        elif descriptor["name"] == "mk_individual":
+            yield get_mks(resource)
+        elif descriptor["name"] == "kns_committeesession":
+            yield get_meetings(resource)
+        else:
+            raise Exception("Invalid resource {}".format(descriptor["name"]))
+
+
+spew(datapackage, get_resources(), stats)

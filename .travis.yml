@@ -9,14 +9,26 @@ env:
   - PROJECT_NAME=knesset-data-committees
   matrix:
   - DEPLOY_ENVIRONMENT=production DEPLOY_BRANCH=master
+  - ""
 services:
 - docker
 script:
 - |
-  if [ "${DEPLOY_ENVIRONMENT}" != "" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ] &&\
+  if docker build -t knesset-data-committees . &&\
+     docker run -it --entrypoint bash knesset-data-committees -c "pipenv run ./test.sh"
+  then
+      echo "Tests completed successfully"
+      PASSED_TESTS="1"
+  else
+      echo "Tests failed"
+      PASSED_TESTS="0"
+  fi
+  if [ "${PASSED_TESTS}" == "1" ] &&\
+     [ "${DEPLOY_ENVIRONMENT}" != "" ] && [ "${TRAVIS_PULL_REQUEST}" == "false" ] &&\
      ([ "${TRAVIS_BRANCH}" == "${DEPLOY_BRANCH}" ] || ([ "${DEPLOY_TAGS}" == "true" ] && [ "${TRAVIS_TAG}" != "" ])) &&\
      ! echo "${TRAVIS_COMMIT_MESSAGE}" | grep -- --no-deploy
   then
+      echo "Starting deployment"
       $OPENSSL_CMD
       if [ "${TRAVIS_TAG}" != "" ]; then
           IMAGE_TAG="gcr.io/${CLOUDSDK_CORE_PROJECT}/${PROJECT_NAME}-tag:${TRAVIS_TAG}"
@@ -43,6 +55,16 @@ script:
         false
       fi
   else
-    echo "skipping deployment"
-    true
+    if [ "${DEPLOY_ENVIRONMENT}" == "" ]; then
+      if [ "${PASSED_TESTS}" == "1" ]; then
+        echo "Tests completed successfully"
+        true
+      else
+        echo "Tests failed"
+        false
+      fi
+    else
+      echo "skipping deployment"
+      true
+    fi
   fi

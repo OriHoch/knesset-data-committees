@@ -24,6 +24,12 @@ Install the app dependencies
 pipenv install
 ```
 
+Run the test to get the test data and make sure everything is installed properly
+
+```
+pipenv run ./test.sh
+```
+
 
 ## Usage
 
