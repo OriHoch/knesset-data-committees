@@ -1,58 +1,80 @@
 from datapackage_pipelines.wrapper import ingest, spew
-from template_functions import get_jinja_env
-from committee_meetings import build_meeting_templates
-from committees import build_committee_templates
-from committees_index import build_committee_knessets_list_template, build_committees_index_template
-from members import load_kns_mksitecode_resource, load_kns_person_resource, load_mk_individual_resource, load_kns_person_to_position_resource
-import logging, os, sys, subprocess
-from collections import OrderedDict
+import os
 
 
-def main():
-    parameters, datapackage, resources = ingest()
-    stats = {}
-    aggregations = {
-        "stats": stats
-    }
-    jinja_env = get_jinja_env()
-    aggregations["committees"] = committees = OrderedDict()
-    committees_descriptor = None
-    site_id_person_id = {}
-    for descriptor, resource in zip(datapackage["resources"], resources):
-        # committees data
-        if descriptor["name"] == "kns_committee":
-            committees_descriptor = descriptor
-            for committee in sorted(resource, key=lambda c: c["StartDate"], reverse=True):
-                committees[int(committee["CommitteeID"])] = committee
+parameters, datapackage, resources, stats = ingest() + ({},)
+if os.environ.get("TEST_DATA") == "1" or parameters.get("test-data"):
+    parameters.update(**{"committee-ids": [2026, 2022, 1013, 1012, 2017],
+                         "max-meetings-per-committee": 5,})
 
-        # members data, it's not a lot of data, so we just load it all into memory
-        # TODO: use the new mk_individual joined data
-        elif descriptor["name"] == "kns_persontoposition":
-            load_kns_person_to_position_resource(resource, aggregations)
-        elif descriptor["name"] == "kns_person":
-            load_kns_person_resource(resource, aggregations)
-        elif descriptor["name"] == "kns_mksitecode":
-            load_kns_mksitecode_resource(resource, aggregations)
-        elif descriptor["name"] == "mk_individual":
-            load_mk_individual_resource(resource, aggregations)
 
-        # main meetings stream
-        # parses all the meetings and builds all the pages
-        elif descriptor["name"] == "kns_committeesession":
-            build_meeting_templates(sorted(resource, key=lambda m: m["StartDate"], reverse=True), committees, jinja_env, descriptor, committees_descriptor, aggregations)
-            build_committee_templates(jinja_env, committees, committees_descriptor, aggregations)
-            build_committee_knessets_list_template(jinja_env, committees, aggregations)
-            build_committees_index_template(jinja_env, committees, aggregations)
+stats.update(**{"committees": 0, "skipped committees": 0})
+all_committee_ids = []
 
+
+# filter committees by committee ids and/or knesset-nums
+def get_committees(committees):
+    for committee in committees:
+        if all([not parameters.get("committee-ids") or committee["CommitteeID"] in parameters["committee-ids"],
+                not parameters.get("knesset-nums") or committee["KnessetNum"] in parameters["knesset-nums"]]):
+            yield committee
+            stats["committees"] += 1
+            all_committee_ids.append(committee["CommitteeID"])
         else:
-            raise Exception("Unknown resource name {}".format(descriptor["name"]))
-
-    if os.environ.get("SKIP_STATIC") != "1":
-        subprocess.check_call(["mkdir", "-p", "dist"])
-        subprocess.check_call(["cp", "-rf", "static", "dist/"])
-
-    spew({}, [], stats)
+            stats["skipped committees"] += 1
 
 
-if __name__ == "__main__":
-    main()
+stats.update(**{"mks": 0, "skipped mks": 0})
+
+
+# filter mks by knesset-nums
+def get_mks(mks):
+    for mk in mks:
+        if parameters.get("knesset-nums"):
+            position_included = False
+            for position in mk["positions"]:
+                if position.get("KnessetNum") and position["KnessetNum"] in parameters["KnessetNum"]:
+                    position_included = True
+                    break
+            if position_included:
+                yield mk
+                stats["mks"] += 1
+            else:
+                stats["skipped mks"] += 1
+        else:
+            yield mk
+            stats["mks"] += 1
+
+
+stats.update(**{"meetings": 0, "skipped meetings": 0})
+
+
+# filter meetings for the filtered committees
+def get_meetings(resource):
+    committee_meeting_nums = {}
+    for row in resource:
+        if row["CommitteeID"] in all_committee_ids:
+            if not parameters.get("max-meetings-per-committee") or committee_meeting_nums.setdefault(row["CommitteeID"], 0) < parameters["max-meetings-per-committee"]:
+                yield row
+                stats["meetings"] += 1
+                committee_meeting_nums.setdefault(row["CommitteeID"], 0)
+                committee_meeting_nums[row["CommitteeID"]] += 1
+            else:
+                stats["skipped meetings"] += 1
+        else:
+            stats["skipped meetings"] += 1
+
+
+def get_resources():
+    for descriptor, resource in zip(datapackage["resources"], resources):
+        if descriptor["name"] == "kns_committee":
+            yield get_committees(resource)
+        elif descriptor["name"] == "mk_individual":
+            yield get_mks(resource)
+        elif descriptor["name"] == "kns_committeesession":
+            yield get_meetings(resource)
+        else:
+            raise Exception("Invalid resource {}".format(descriptor["name"]))
+
+
+spew(datapackage, get_resources(), stats)
