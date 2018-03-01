@@ -130,7 +130,6 @@ create_members:
       resource: mk_individual
   - run: build_members
 
-
 build_positions:
   pipeline:
   # all these tables are loaded into memory
@@ -141,7 +140,24 @@ build_positions:
   - run: build_positions
   - run: dump.to_path
     parameters:
-      out-path: data/positions
+      out-path: data/positions_aggr
+
+create_factions:
+  pipeline:
+  # all these tables are loaded into memory
+  - run: load_resource
+    parameters:
+      url: data/positions_aggr/datapackage.json
+      resource: members
+  - run: load_resource
+    parameters:
+      url: data/positions_aggr/datapackage.json
+      resource: positions
+  - run: load_resource
+    parameters:
+      url: data/positions_aggr/datapackage.json
+      resource: knessets
+  - run: build_factions
 
 join-attendance-data:
 #  dependencies:
