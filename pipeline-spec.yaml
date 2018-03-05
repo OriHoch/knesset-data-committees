@@ -218,17 +218,3 @@ split-attendance-data:
   - run: dump.to_path
     parameters:
       out-path: data/attendance/knesset-20
-
-parse_presence_data:
-  pipeline:
-  - run: load_resource
-    parameters:
-      url: data/members/datapackage.json
-      resource: mk_individual
-  - run: read_presence
-    parameters:
-      presence-file: data/members/presence.txt
-  - run: dump.to_path
-    parameters:
-      out-path: data/members/presence
-
