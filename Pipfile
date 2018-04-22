@@ -1,24 +1,18 @@
 [[source]]
-
 url = "https://pypi.python.org/simple"
 verify_ssl = true
 name = "pypi"
 
-
 [dev-packages]
-
 ipython = "*"
 
-
 [packages]
-
 "datapackage-pipelines[develop,speedup]" = "*"
 setuptools = "*"
 python-dotenv = "*"
 "7600495" = {file = "https://github.com/hasadna/knesset-data-python/archive/v2.0.1.zip"}
 ipython = "*"
-
+sh = "*"
 
 [requires]
-
 python_version = "3.6"
