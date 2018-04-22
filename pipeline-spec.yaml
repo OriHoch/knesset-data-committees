@@ -12,7 +12,7 @@ download:
       - file_type: parts
   - run: load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/committees/joined-meeting-attendees-mks/datapackage.json
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_committeesession/datapackage.json
       resource: kns_committeesession
   - run: load_resource
     parameters:
@@ -47,9 +47,15 @@ join-meetings:
           name: name
         parts_filesize:
           name: size
-  - run: dump.to_path
+  - run: knesset.dump_to_path
     parameters:
       out-path: data/committee-meetings
+      storage-url: http://storage.googleapis.com/knesset-data-pipelines/data/committees-build/committee-meetings
+  - run: knesset.dump_to_sql
+    parameters:
+      tables:
+        committees_build_committee_meetings:
+          resource-name: kns_committeesession
 
 download_members:
   description: downloads members data
@@ -81,6 +87,15 @@ build:
   - run: dump.to_path
     parameters:
       out-path: data/build_meetings
+  - run: knesset.dump_to_path
+    parameters:
+      out-path: data/build_meetings
+      storage-url: http://storage.googleapis.com/knesset-data-pipelines/data/committees-build/build_meetings
+  - run: knesset.dump_to_sql
+    parameters:
+      tables:
+        committees_build_build_meetings:
+          resource-name: kns_committeesession
 
 render_meetings:
   pipeline:
@@ -97,9 +112,17 @@ render_meetings:
       url: data/build_meetings/datapackage.json
       resource: kns_committeesession
   - run: render_meetings
-  - run: dump.to_path
+  - run: knesset.dump_to_path
     parameters:
       out-path: data/rendered_meetings_stats
+      storage-url: http://storage.googleapis.com/knesset-data-pipelines/data/committees-build/rendered_meetings_stats
+      additional-paths:
+        dist: http://storage.googleapis.com/knesset-data-pipelines/data/dist
+  - run: knesset.dump_to_sql
+    parameters:
+      tables:
+        committees_build_rendered_meetings_stats:
+          resource-name: meetings_stats
 
 render_committees:
   pipeline:
