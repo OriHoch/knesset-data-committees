@@ -1,7 +1,8 @@
 FROM frictionlessdata/datapackage-pipelines
 RUN pip install --no-cache-dir pipenv pew
 RUN apk --update --no-cache add build-base python3-dev bash jq libxml2 libxml2-dev git libxslt libxslt-dev curl \
-                                libpq postgresql-dev openssl
+                                libpq postgresql-dev openssl antiword
+RUN apk --update --no-cache add linux-headers
 COPY Pipfile /pipelines/
 COPY Pipfile.lock /pipelines/
 RUN pipenv install --system --deploy --ignore-pipfile

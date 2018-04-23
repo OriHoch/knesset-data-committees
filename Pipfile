@@ -13,6 +13,8 @@ python-dotenv = "*"
 "7600495" = {file = "https://github.com/hasadna/knesset-data-python/archive/v2.0.1.zip"}
 ipython = "*"
 sh = "*"
+datapackage-pipelines-metrics = "*"
+psutil = "*"
 
 [requires]
 python_version = "3.6"
