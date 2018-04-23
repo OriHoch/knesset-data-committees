@@ -155,6 +155,17 @@ download-kns-committeesession:
     parameters:
       out-path: data/kns_committeesession
 
+download-kns-committeesession:
+  description: downloads kns committee session
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/committees/joined-meeting-attendees-mks/datapackage.json
+      resource: kns_committeesession
+  - run: dump.to_path
+    parameters:
+      out-path: data/kns_committeesession
+
 create_members:
 #  dependencies:
 #  - pipeline: ./download-kns-committeesession
