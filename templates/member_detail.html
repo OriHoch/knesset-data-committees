@@ -70,6 +70,24 @@
                 </ul>
             </section>
         </div>
+        {% if percents %}
+            <div class="span3">
+                <aside class="sidebar sidebar-stats">
+                    <h2>נוכחות בוועדות</h2>
+                    <ul>
+                        {% for knesset, percent in percents.items() %}
+                        <li>
+                            <div>הכנסת ה{{knesset}}</div>
+                            <div class="progress progress-info">
+                                <div class="bar" style="width:{{percent}}%"></div>
+                                <div class="bar-label">{{percent}}%</div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </aside>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}
 
