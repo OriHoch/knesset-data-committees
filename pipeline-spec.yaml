@@ -121,13 +121,30 @@ render_committees:
       resource: meetings_stats
   - run: render_committees
 
+download-kns-committeesession:
+  description: downloads kns committee session
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/committees/joined-meeting-attendees-mks/datapackage.json
+      resource: kns_committeesession
+  - run: dump.to_path
+    parameters:
+      out-path: data/kns_committeesession
+
 create_members:
+#  dependencies:
+#  - pipeline: ./download-kns-committeesession
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/mks-joined/datapackage.json
+      url: data/members_aggr/datapackage.json
       resource: mk_individual
+  - run: load_resource
+    parameters:
+      url: data/kns_committeesession/datapackage.json
+      resource: kns_committeesession
   - run: build_members
 
 build_positions:
