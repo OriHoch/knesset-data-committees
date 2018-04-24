@@ -29,7 +29,7 @@ Install some additional dependencies
 ```
 pipenv shell
 pip install --upgrade https://github.com/OriHoch/datapackage-pipelines/archive/cli-support-list-of-pipeline-ids.zip
-pip install --upgrade https://github.com/OriHoch/knesset-data-pipelines/archive/add-missing-tables-from-knesset.zip
+pip install --upgrade https://github.com/hasadna/knesset-data-pipelines/archive/master.zip
 ```
 
 Run the test to get the test data and make sure everything is installed properly
