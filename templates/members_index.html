@@ -12,9 +12,11 @@
                     <h1><i class="fa fa-users"></i>כל הח"כים</h1>
                 </header>
                 <ul>
-                    {% for mk in all_mks %}
+                    {% for member in members %}
                         <li><p class="item-title">
-                            <a href="{{ mk.url }}">{{ mk.first_name }} {{ mk.last_name }}</a>
+                            <a href="{{ member.url }}">
+                                {{ member.first_name }} {{ member.last_name }}
+                            </a>
                         </p></li>
                     {% endfor %}
                 </ul>
