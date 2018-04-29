@@ -12,7 +12,7 @@ download:
       - file_type: parts
   - run: load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_committeesession/datapackage.json
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/committees/joined-meeting-attendees-mks/datapackage.json
       resource: kns_committeesession
   - run: load_resource
     parameters:
