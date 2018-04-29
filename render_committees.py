@@ -53,14 +53,16 @@ for meeting in next(resources):
     committee = kns_committees[meeting["CommitteeID"]]
     committee.setdefault("meetings", []).append(meeting)
     all_meetings[meeting["CommitteeSessionID"]] = meeting
+    meeting["num_speech_parts"] = 0
     stats["all meetings"] += 1
 
 
 meeting_stats_descriptor = datapackage["resources"][3]
 stats["all meeting stats"] = 0
 for meeting_stats in next(resources):
-    all_meetings[meeting_stats["CommitteeSessionID"]]["num_speech_parts"] = meeting_stats["num_speech_parts"]
-    stats["all meeting stats"] += 1
+    if meeting_stats["CommitteeSessionID"] in all_meetings:
+        all_meetings[meeting_stats["CommitteeSessionID"]]["num_speech_parts"] = meeting_stats["num_speech_parts"]
+        stats["all meeting stats"] += 1
 
 
 def get_committee_meeting_contexts(committee):
