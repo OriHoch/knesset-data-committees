@@ -61,7 +61,7 @@ def main():
         subprocess.check_call(["mkdir", "-p", "dist"])
         subprocess.check_call(["cp", "-rf", "static", "dist/"])
 
-    spew({}, [], {})
+    spew(dict(datapackage, resources=[]), [], {})
 
 
 if __name__ == "__main__":

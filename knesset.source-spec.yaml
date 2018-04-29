@@ -83,10 +83,12 @@ build:
     parameters:
       url: data/committee-meetings/datapackage.json
       resource: kns_committeesession
+#  - run: filter
+#    parameters:
+#      resources: kns_committeesession
+#      in:
+#        - CommitteeID: 922
   - run: build_meetings
-  - run: dump.to_path
-    parameters:
-      out-path: data/build_meetings
   - run: knesset.dump_to_path
     parameters:
       out-path: data/build_meetings
@@ -116,8 +118,6 @@ render_meetings:
     parameters:
       out-path: data/rendered_meetings_stats
       storage-url: http://storage.googleapis.com/knesset-data-pipelines/data/committees-build/rendered_meetings_stats
-      additional-paths:
-        dist: http://storage.googleapis.com/knesset-data-pipelines/data/dist
   - run: knesset.dump_to_sql
     parameters:
       tables:
@@ -143,30 +143,26 @@ render_committees:
       url: data/rendered_meetings_stats/datapackage.json
       resource: meetings_stats
   - run: render_committees
-
-download-kns-committeesession:
-  description: downloads kns committee session
-  pipeline:
-  - run: load_resource
+  - run: knesset.dump_to_path
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/committees/joined-meeting-attendees-mks/datapackage.json
-      resource: kns_committeesession
-  - run: dump.to_path
+      out-path: data/render_committees_stats
+      storage-url: http://storage.googleapis.com/knesset-data-pipelines/data/committees-build/render_committees_stats
+  - run: knesset.dump_to_sql
     parameters:
-      out-path: data/kns_committeesession
+      tables:
+        committees_build_render_committees_stats:
+          resource-name: committees_stats
 
 create_members:
-#  dependencies:
-#  - pipeline: ./download-kns-committeesession
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/members_aggr/datapackage.json
+      url: data/members/datapackage.json
       resource: mk_individual
   - run: load_resource
     parameters:
-      url: data/kns_committeesession/datapackage.json
+      url: data/committee-meetings/datapackage.json
       resource: kns_committeesession
   - run: build_members
 
@@ -175,7 +171,7 @@ build_positions:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/members_aggr/datapackage.json
+      url: data/members/datapackage.json
       resource: mk_individual
   - run: build_positions
   - run: dump.to_path

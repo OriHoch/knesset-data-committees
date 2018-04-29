@@ -13,7 +13,9 @@
             <div class="span6 card-details">
                 <div class="spacer fill">
                     <h2>ישיבת ועדה של הכנסת ה-{{knesset_num}} מתאריך {{meeting_datestring}}</h2>
+                    {% if topics %}
                     <h1>{{topics|join(', ')}}</h1>
+                    {% endif %}
                 </div>
             </div>
             <div class="span6 social-details">
