@@ -30,8 +30,12 @@ for descriptor, resource in zip(datapackage["resources"], resources):
 
     for member in resource:
         id = member["mk_individual_id"]
+
         # convert to small photo url
-        photo = member["mk_individual_photo"][:-4] + "-s" + member["mk_individual_photo"][-4:]
+        if member["mk_individual_photo"]:
+            photo = member["mk_individual_photo"][:-4] + "-s" + member["mk_individual_photo"][-4:]
+        else:
+            photo = None
 
         output_members.append({
             "mk_individual_id": id,

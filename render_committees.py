@@ -13,6 +13,7 @@ stats["all committees"] = 0
 kns_committees = {}
 for kns_committee in next(resources):
     kns_committees[int(kns_committee["CommitteeID"])] = kns_committee
+    kns_committee['meetings'] = []
     stats["all committees"] += 1
 
 
@@ -116,40 +117,28 @@ stats["failed_committees"] = 0
 knesset_num_committees = {}
 for kns_committee in kns_committees.values():
     knesset_num_committees.setdefault(kns_committee["KnessetNum"], []).append(kns_committee)
-    try:
-        build_template(jinja_env,
-                       "committee_detail.html",
-                       get_committee_context(kns_committee),
-                       COMMITTEE_DETAIL_URL.format(committee_id=kns_committee["CommitteeID"]))
-        stats["built_committees"] += 1
-    except Exception:
-        stats["failed_committees"] += 1
-        logging.exception("Failed to build template committee_detail.html for committee_id {}".format(kns_committee["CommitteeID"]))
+    build_template(jinja_env,
+                   "committee_detail.html",
+                   get_committee_context(kns_committee),
+                   COMMITTEE_DETAIL_URL.format(committee_id=kns_committee["CommitteeID"]))
+    stats["built_committees"] += 1
 
 
 stats["built_knesset_nums"] = 0
 stats["failed_knesset_nums"] = 0
 for knesset_num, kns_committees in knesset_num_committees.items():
-    try:
-        build_template(jinja_env,
-                       "committee_list.html",
-                       get_committee_list_context(kns_committees, knesset_num),
-                       COMMITTEE_LIST_KNESSET_URL.format(num=knesset_num))
-        stats["built_knesset_nums"] += 1
-    except Exception:
-        stats["failed_knesset_nums"] += 1
-        logging.exception("Failed to build template committee_list.html for knesset_num {}".format(knesset_num))
-
-
-try:
     build_template(jinja_env,
-                   "committees_index.html",
-                   get_committee_index_context(knesset_num_committees),
-                   COMMITTEES_INDEX_URL)
-    stats["built index"] = 1
-except Exception:
-    stats["failed index"] = 1
-    logging.exception("Failed to build template committees_index.html")
+                   "committee_list.html",
+                   get_committee_list_context(kns_committees, knesset_num),
+                   COMMITTEE_LIST_KNESSET_URL.format(num=knesset_num))
+    stats["built_knesset_nums"] += 1
+
+
+build_template(jinja_env,
+               "committees_index.html",
+               get_committee_index_context(knesset_num_committees),
+               COMMITTEES_INDEX_URL)
+stats["built index"] = 1
 
 
 if os.environ.get("SKIP_STATIC") != "1":

@@ -72,10 +72,10 @@ def main():
         subprocess.check_call(["mkdir", "-p", "dist"])
         subprocess.check_call(["cp", "-rf", "static", "dist/"])
 
-    spew({}, [], {})
+    spew(dict(datapackage, resources=[]), [], {})
 
 def getIcon(photo):
-    return photo[:-4] + "-s" + photo[-4:]
+    return photo[:-4] + "-s" + photo[-4:] if photo else None
 
 def isMember(positions, startDate):
 
