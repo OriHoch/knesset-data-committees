@@ -53,7 +53,7 @@ def main():
                             members[mkId]["counts"][knessetNum] += 1
 
     for member in members.values():
-        if "counts" in member:
+        if not os.environ.get('DISABLE_MEMBER_PERCENTS') and "counts" in member:
             for knesset, count in member["counts"].items():
                 percent = count / committees[knesset] * 100
 

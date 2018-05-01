@@ -19,4 +19,4 @@ for line in cmd(*ls_args, _iter=True):
     logging.info(line)
 
 
-spew(datapackage.update(resources=[]), [])
+spew(dict(datapackage, resources=[]), [])
