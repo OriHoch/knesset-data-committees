@@ -16,4 +16,3 @@ COPY *.py /pipelines/
 COPY *.yaml /pipelines/
 COPY templates/ /pipelines/templates
 COPY *.sh /pipelines/
-ENTRYPOINT ["/pipelines/pipelines_script.sh"]
