@@ -24,60 +24,116 @@
     </section>
     <div class="row">
         <div class="cards span9">
-            <section class="card card-list card-list-latest">
+            {% if committees %}
+                <section class="card card-list card-list-latest">
                 <header>
                     <h2>
                         <i class="fa fa-users"></i>
-                       	תפקידים
+                       	ועדות
                     </h2>
                 </header>
                 <ul id="recent-committees">
-                    {% for position in positions %}
-                        {% if position.FactionID or position.GovMinistryID or position.CommitteeID %}
+                    {% for committee in committees %}
                         <li>
                             <p class="item-action">
-								הכנסת ה{{position.KnessetNum}}
+								הכנסת ה-{{committee.knesset_num}}
 
-								{% if position.start_date %}
-									מ{{position.start_date|datetime('%d/%m/%Y')}}
+								{% if committee.start_date %}
+									מ-{{committee.start_date|datetime('%d/%m/%Y')}}
 								{% endif %}
 
-								{% if position.finish_date %}
-									עד {{position.finish_date|datetime('%d/%m/%Y')}}
+								{% if committee.finish_date %}
+									עד {{committee.finish_date|datetime('%d/%m/%Y')}}
 								{% endif %}
                             </p>
                             <p class="item-title">
-                                {% if position.FactionID %}
-                                    <!--<a href="{{faction_url | replace('{faction_id}', position.FactionID)}}">-->
-                                		{{position.FactionName}}
-                                    <!--</a>-->
-                                {% elif position.GovMinistryID %}
-                                    <!--<a href="{{ministry_url | replace('{ministry_id}', position.GovMinistryID)}}">-->
-	                                    {{position.GovMinistryName}}
-                                    <!--</a>-->
-                                {% elif position.CommitteeID %}
-                                    <!--<a href="{{committee_url | replace('{committee_id}', position.CommitteeID)}}">-->
-	                                    {{position.CommitteeName}}
-                                    <!--</a>-->
-                                {% endif %}
+                                {{committee.committee_name}}
                             </p>
                             <p class="item-context">
-                                {{position.position}}
+                                {{committee.position_name}}
                             </p>
                         </li>
-                        {% endif %}
                     {% endfor %}
                 </ul>
             </section>
+            {% endif %}
+
+            {% if factions %}
+                <section class="card card-list card-list-latest">
+                <header>
+                    <h2>
+                        <i class="fa fa-users"></i>
+                       	סיעות
+                    </h2>
+                </header>
+                <ul id="recent-factions">
+                    {% for faction in factions %}
+                        <li>
+                            <p class="item-action">
+								הכנסת ה-{{faction.knesset_num}}
+
+								{% if faction.start_date %}
+									מ-{{faction.start_date|datetime('%d/%m/%Y')}}
+								{% endif %}
+
+								{% if faction.finish_date %}
+									עד {{faction.finish_date|datetime('%d/%m/%Y')}}
+								{% endif %}
+                            </p>
+                            <p class="item-title">
+                                {{faction.faction_name}}
+                            </p>
+                            <p class="item-context">
+                                {{faction.position_name}}
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
+
+            {% if ministries %}
+                <section class="card card-list card-list-latest">
+                <header>
+                    <h2>
+                        <i class="fa fa-users"></i>
+                       	משרות
+                    </h2>
+                </header>
+                <ul id="recent-ministries">
+                    {% for ministry in ministries %}
+                        <li>
+                            <p class="item-action">
+								הכנסת ה-{{ministry.knesset_num}}
+
+								{% if ministry.start_date %}
+									מ-{{ministry.start_date|datetime('%d/%m/%Y')}}
+								{% endif %}
+
+								{% if ministry.finish_date %}
+									עד {{ministry.finish_date|datetime('%d/%m/%Y')}}
+								{% endif %}
+                            </p>
+                            <p class="item-title">
+                                {{ministry.ministry_name}}
+                            </p>
+                            <p class="item-context">
+                                {{ministry.position_name}}
+                            </p>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </section>
+            {% endif %}
         </div>
         {% if percents %}
             <div class="span3">
                 <aside class="sidebar sidebar-stats">
                     <h2>נוכחות בוועדות</h2>
                     <ul>
-                        {% for knesset, percent in percents.items() %}
+                        {% for knesset, percent in percents|dictsort(reverse=True) %}
                         <li>
-                            <div>הכנסת ה{{knesset}}</div>
+                            <div>הכנסת ה-{{knesset}}</div>
                             <div class="progress progress-info">
                                 <div class="bar" style="width:{{percent}}%"></div>
                                 <div class="bar-label">{{percent}}%</div>

@@ -18,14 +18,15 @@ def main():
 
         if descriptor["name"] == "mk_individual":
             for member in resource:
+
                 mkId = member["mk_individual_id"]
+
                 members[mkId] = {
                     "mk_individual_id": mkId,
                     "first_name": member["mk_individual_first_name"],
                     "last_name": member["mk_individual_name"],
                     "photo": member["mk_individual_photo"],
                     "icon": getIcon(member["mk_individual_photo"]),
-                    "positions": sortPositions(member["positions"]),
                     "position_url": POSITION_URL,
                     "ministry_url": MINISTRY_URL,
                     "faction_url": FACTION_URL,
@@ -33,10 +34,47 @@ def main():
                     "url": MEMBER_URL.format(member_id=mkId),
                     "source_member_row": member}
 
+                member_factions = []
+                member_committees = []
+                member_ministries = []
+
+                for position in sorted(member["positions"], key=dateKey, reverse=True):
+                    if "KnessetNum" not in position:
+                        continue
+
+                    item = {
+                        "knesset_num": position["KnessetNum"],
+                        "position_id": position["position_id"],
+                        "position_name": position["position"],
+                        "start_date": position["start_date"]
+                    }
+
+                    if "finish_date" in position:
+                        item["finish_date"] = position["finish_date"]
+
+                    if "FactionID" in position:
+                        item["faction_id"] = position["FactionID"]
+                        item["faction_name"] = position["FactionName"]
+                        member_factions.append(item)
+
+                    if "CommitteeID" in position:
+                        item["committee_id"] = position["CommitteeID"]
+                        item["committee_name"] = position["CommitteeName"]
+                        member_committees.append(item)
+
+                    if "GovMinistryID" in position:
+                        item["ministry_id"] = position["GovMinistryID"]
+                        item["ministry_name"] = position["GovMinistryName"]
+                        member_ministries.append(item)
+
+                members[mkId]["factions"] = member_factions
+                members[mkId]["committees"] = member_committees
+                members[mkId]["ministries"] = member_ministries
+
         elif descriptor["name"] == "kns_committeesession":
             for committee in resource:
                 # aggregate statistics only if there is a protocol and mks
-                if committee["text_file_name"] and committee["attended_mk_individual_ids"]:
+                if committee["text_file_name"] and committee["text_file_size"]:
                     knessetNum = committee["KnessetNum"]
 
                     if knessetNum not in committees:
@@ -44,7 +82,12 @@ def main():
                     committees[knessetNum] += 1
 
                     for mkId in committee["attended_mk_individual_ids"]:
-                        if mkId in members and isMember(members[mkId]["positions"], committee["StartDate"]):
+                        if mkId not in members:
+                            continue
+
+                        positions = members[mkId]["factions"] + members[mkId]["committees"] + members[mkId][
+                            "ministries"]
+                        if isMember(positions, committee["StartDate"]):
                             if "counts" not in members[mkId]:
                                 members[mkId]["counts"] = {}
                             if knessetNum not in members[mkId]["counts"]:
@@ -96,18 +139,12 @@ def isMember(positions, startDate):
 
     return False
 
-def sortPositions(positions):
-    try:
-        return sorted(positions, key=dateKey, reverse=True)
-    except KeyError:
-        return positions
-
 def dateKey(position):
     key = "1970-01-01 00:00:00"
 
-    if position["finish_date"]:
+    if "finish_date" in position:
         key = position["finish_date"]
-    elif position["start_date"]:
+    elif "start_date" in position:
         key = position["start_date"]
 
     return datetime.strptime(key, "%Y-%m-%d %H:%M:%S")

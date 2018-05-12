@@ -153,25 +153,40 @@ render_committees:
         committees_build_render_committees_stats:
           resource-name: committees_stats
 
+joined_mks:
+  description: downloads joined members data
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/members/joined-mks/datapackage.json
+      resource: mk_individual
+  - run: dump.to_path
+    parameters:
+      out-path: data/joined_mks
+
 create_members:
+#  dependencies:
+#  - pipeline: ./joined_mks
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/members/datapackage.json
+      url: data/joined_mks/datapackage.json
       resource: mk_individual
   - run: load_resource
     parameters:
-      url: data/committee-meetings/datapackage.json
+      url: data/people/committees/datapackage.json
       resource: kns_committeesession
   - run: build_members
 
 build_positions:
+#  dependencies:
+#  - pipeline: ./joined_mks
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/members/datapackage.json
+      url: data/joined_mks/datapackage.json
       resource: mk_individual
   - run: build_positions
   - run: dump.to_path
