@@ -17,7 +17,9 @@ cd /ops
                           "${OPS_REPO_SLUG}" "${OPS_REPO_BRANCH}" \
     && ERRORS+="; failed helm update values" && RES=1;
 
-! ./helm_upgrade_external_chart.sh pipelines-jobs && ERRORS+="; failed helm upgrade" && RES=1;
+
+./helm_upgrade_external_chart.sh committees --dry-run --debug && ./helm_upgrade_external_chart.sh committees
+[ "$?" != "0" ] && ERRORS+="; failed helm upgrade" && RES=1;
 
 echo "${ERRORS}"
 exit $RES

@@ -1,5 +1,7 @@
 download:
   description: download all the source committees data to allow quick building and aggregations from a local copy
+  schedule:
+    crontab: "10 1 * * *"
   pipeline:
   - run: load_resource
     parameters:
@@ -24,6 +26,8 @@ download:
 
 join-meetings:
   description: add the protocol parts file details
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: download
   pipeline:
@@ -61,6 +65,8 @@ join-meetings:
 
 download_members:
   description: downloads members data
+  schedule:
+    crontab: "10 1 * * *"
   pipeline:
   - run: load_resource
     parameters:
@@ -72,6 +78,8 @@ download_members:
 
 build:
   description: prepare the data for rendering, allows to limit rendering to subset of items
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: download
   - pipeline: join-meetings
@@ -106,6 +114,8 @@ build:
           resource-name: kns_committeesession
 
 render_meetings:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: build
   pipeline:
@@ -133,6 +143,8 @@ render_meetings:
           resource-name: meetings_stats
 
 render_committees:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: render_meetings
   pipeline:
@@ -164,6 +176,8 @@ render_committees:
           resource-name: committees_stats
 
 create_members:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: join-meetings
   - pipeline: download_members
@@ -180,6 +194,8 @@ create_members:
   - run: build_members
 
 build_positions:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: download_members
   pipeline:
@@ -194,6 +210,8 @@ build_positions:
       out-path: data/positions_aggr
 
 create_factions:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: build_positions
   pipeline:
@@ -213,6 +231,8 @@ create_factions:
   - run: build_factions
 
 sync:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: render_meetings
   - pipeline: render_committees
