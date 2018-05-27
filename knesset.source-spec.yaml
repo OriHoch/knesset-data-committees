@@ -3,22 +3,23 @@ download:
   schedule:
     crontab: "10 1 * * *"
   pipeline:
-  - run: load_resource
+  - run: knesset.load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/gcs_list_files/datapackage.json
+      path: committees/gcs_list_files/datapackage.json
       resource: files
   - run: filter
     parameters:
       resources: ["files"]
       in:
       - file_type: parts
-  - run: load_resource
+  - run: knesset.load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/committees/joined-meeting-attendees-mks/datapackage.json
+      app: people
+      path: committees/joined-meeting-attendees-mks/datapackage.json
       resource: kns_committeesession
-  - run: load_resource
+  - run: knesset.load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_committee/datapackage.json
+      path: committees/kns_committee/datapackage.json
       resource: kns_committee
   - run: dump.to_path
     parameters:
@@ -68,9 +69,10 @@ download_members:
   schedule:
     crontab: "10 1 * * *"
   pipeline:
-  - run: load_resource
+  - run: knesset.load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/members/joined-mks/datapackage.json
+      app: people
+      path: members/joined-mks/datapackage.json
       resource: mk_individual
   - run: dump.to_path
     parameters:
