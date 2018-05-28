@@ -7,7 +7,7 @@ name = "pypi"
 ipython = "*"
 
 [packages]
-"datapackage-pipelines[develop,speedup]" = "*"
+"datapackage-pipelines[develop,speedup]" = "<1.7.0"
 setuptools = "*"
 python-dotenv = "*"
 "7600495" = {file = "https://github.com/hasadna/knesset-data-python/archive/v2.0.1.zip"}
@@ -15,6 +15,7 @@ ipython = "*"
 sh = "*"
 datapackage-pipelines-metrics = "*"
 psutil = "*"
+"49db258" = {file = "https://github.com/hasadna/knesset-data-pipelines/archive/master.zip"}
 
 [requires]
 python_version = "3.6"

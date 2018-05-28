@@ -1,22 +1,25 @@
 download:
   description: download all the source committees data to allow quick building and aggregations from a local copy
+  schedule:
+    crontab: "10 1 * * *"
   pipeline:
-  - run: load_resource
+  - run: knesset.load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/gcs_list_files/datapackage.json
+      path: committees/gcs_list_files/datapackage.json
       resource: files
   - run: filter
     parameters:
       resources: ["files"]
       in:
       - file_type: parts
-  - run: load_resource
+  - run: knesset.load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/committees/joined-meeting-attendees-mks/datapackage.json
+      app: people
+      path: committees/joined-meeting-attendees-mks/datapackage.json
       resource: kns_committeesession
-  - run: load_resource
+  - run: knesset.load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/committees/kns_committee/datapackage.json
+      path: committees/kns_committee/datapackage.json
       resource: kns_committee
   - run: dump.to_path
     parameters:
@@ -24,6 +27,8 @@ download:
 
 join-meetings:
   description: add the protocol parts file details
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: download
   pipeline:
@@ -61,10 +66,13 @@ join-meetings:
 
 download_members:
   description: downloads members data
+  schedule:
+    crontab: "10 1 * * *"
   pipeline:
-  - run: load_resource
+  - run: knesset.load_resource
     parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/members/joined-mks/datapackage.json
+      app: people
+      path: members/joined-mks/datapackage.json
       resource: mk_individual
   - run: dump.to_path
     parameters:
@@ -72,6 +80,8 @@ download_members:
 
 build:
   description: prepare the data for rendering, allows to limit rendering to subset of items
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: download
   - pipeline: join-meetings
@@ -106,6 +116,8 @@ build:
           resource-name: kns_committeesession
 
 render_meetings:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: build
   pipeline:
@@ -133,6 +145,8 @@ render_meetings:
           resource-name: meetings_stats
 
 render_committees:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: render_meetings
   pipeline:
@@ -175,6 +189,8 @@ joined_mks:
       out-path: data/joined_mks
 
 create_members:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: ./joined_mks
   pipeline:
@@ -190,6 +206,8 @@ create_members:
   - run: build_members
 
 build_positions:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: ./joined_mks
   pipeline:
@@ -204,6 +222,8 @@ build_positions:
       out-path: data/positions_aggr
 
 create_factions:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: build_positions
   pipeline:
@@ -223,6 +243,8 @@ create_factions:
   - run: build_factions
 
 sync:
+  schedule:
+    crontab: "10 1 * * *"
   dependencies:
   - pipeline: render_meetings
   - pipeline: render_committees
