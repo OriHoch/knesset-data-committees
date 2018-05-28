@@ -175,19 +175,23 @@ joined_mks:
       out-path: data/joined_mks
 
 create_members:
+  dependencies:
+  - pipeline: ./joined_mks
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/members/datapackage.json
+      url: data/joined_mks/datapackage.json
       resource: mk_individual
   - run: load_resource
     parameters:
-      url: data/committee-meetings/datapackage.json
+      url: data/people/committees/datapackage.json
       resource: kns_committeesession
   - run: build_members
 
 build_positions:
+  dependencies:
+  - pipeline: ./joined_mks
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
@@ -225,67 +229,58 @@ sync:
   - pipeline: create_members
   - pipeline: create_factions
   pipeline:
-  - run: sync
+  - run: load_resource
     parameters:
-      source: "./dist"
-      target: "gs://knesset-data-pipelines/data/dist"
+      url: data/committee-meetings/datapackage.json
+      resource: kns_committeesession
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: committee-meeting-attendees
+  - run: stream_remote_resources
+  - run: join
+    parameters:
+      source:
+        name: kns_committeesession
+        key: ["CommitteeSessionID"]
+        delete: true
+      target:
+        name: committee-meeting-attendees
+        key: ["meeting_id"]
+      full: false
+      fields:
+        meeting_topics:
+          name: topics
+        meeting_date:
+          name: StartDate
+        knesset_num:
+          name: KnessetNum
+  - run: sort
+    parameters:
+      resources: .*
+      sort-by: "{knesset_num}-{meeting_date}"
+  - run: dump.to_path
+    parameters:
+      out-path: data/attendance-joined-data
 
-#join-attendance-data:
-##  dependencies:
-##  - pipeline: ./join-meetings
-#  pipeline:
-#  - run: load_resource
-#    parameters:
-#      url: data/committee-meetings/datapackage.json
-#      resource: kns_committeesession
-#  - run: load_resource
-#    parameters:
-#      url: data/committees/datapackage.json
-#      resource: committee-meeting-attendees
-#  - run: stream_remote_resources
-#  - run: join
-#    parameters:
-#      source:
-#        name: kns_committeesession
-#        key: ["CommitteeSessionID"]
-#        delete: true
-#      target:
-#        name: committee-meeting-attendees
-#        key: ["meeting_id"]
-#      full: false
-#      fields:
-#        meeting_topics:
-#          name: topics
-#        meeting_date:
-#          name: StartDate
-#        knesset_num:
-#          name: KnessetNum
-#  - run: sort
-#    parameters:
-#      resources: .*
-#      sort-by: "{knesset_num}-{meeting_date}"
-#  - run: dump.to_path
-#    parameters:
-#      out-path: data/attendance-joined-data
-#
-#split-attendance-data:
-##  dependencies:
-##  - pipeline: ./join-attendance-data
-#  pipeline:
-#  - run: load_resource
-#    parameters:
-#      url: data/committees/datapackage.json
-#      resource: kns_committee
-#  - run: load_resource
-#    parameters:
-#      url: data/attendance-joined-data/datapackage.json
-#      resource: committee-meeting-attendees
-#  - run: filter
-#    parameters:
-#      resources: ["committee-meeting-attendees"]
-#      in:
-#      - knesset_num: 20
-#  - run: attendance
-#  - run: dump.to_path
-#    parameters:
-#      out-path: data/attendance/knesset-20
+split-attendance-data:
+#  dependencies:
+#  - pipeline: ./join-attendance-data
+  pipeline:
+  - run: load_resource
+    parameters:
+      url: data/committees/datapackage.json
+      resource: kns_committee
+  - run: load_resource
+    parameters:
+      url: data/attendance-joined-data/datapackage.json
+      resource: committee-meeting-attendees
+  - run: filter
+    parameters:
+      resources: ["committee-meeting-attendees"]
+      in:
+      - knesset_num: 20
+  - run: attendance
+  - run: dump.to_path
+    parameters:
+      out-path: data/attendance/knesset-20
