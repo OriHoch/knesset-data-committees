@@ -108,9 +108,6 @@ def main():
                        get_context(member),
                        MEMBER_URL.format(member_id=member["mk_individual_id"]))
 
-    build_template(jinja_env, "members_index.html",
-                   get_context({"members": sorted(members.values(), key=lambda mk: mk["first_name"])}), "members/index.html")
-
     if os.environ.get("SKIP_STATIC") != "1":
         subprocess.check_call(["mkdir", "-p", "dist"])
         subprocess.check_call(["cp", "-rf", "static", "dist/"])

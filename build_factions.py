@@ -3,7 +3,7 @@ from template_functions import get_jinja_env
 import logging, os, subprocess
 from datetime import datetime
 from template_functions import build_template, get_context
-from constants import FACTION_HOME_URL, FACTION_URL, MEMBER_URL
+from constants import FACTION_HOME_URL, FACTION_URL, MEMBER_URL, MEMBERS_HOME_URL
 
 
 def main():
@@ -14,6 +14,7 @@ def main():
     members = {}
     factions = {}
     knessets = {}
+    counts = {}
 
     for descriptor, resource in zip(datapackage["resources"], resources):
         if descriptor["name"] == "members":
@@ -36,6 +37,8 @@ def main():
                     knessets[knesset["KnessetNum"]].append(factions[id])
 
     for knesset_num, factions in knessets.items():
+        mks = []
+
         build_template(jinja_env, "factions_index.html",
                        get_context({
                            "knesset_num": knesset_num,
@@ -46,6 +49,9 @@ def main():
                        FACTION_HOME_URL.format(knesset_num=knesset_num))
 
         for faction in factions:
+
+            mks.extend([mk["mk_individual_id"] for mk in faction["mks"]])
+
             build_template(jinja_env, "faction_detail.html",
                            get_context({
                                "knesset_num": knesset_num,
@@ -56,6 +62,19 @@ def main():
                                "member_url": MEMBER_URL
                            }),
                            FACTION_URL.format(knesset_num=knesset_num,faction_id=faction["faction_num"]))
+
+        counts[knesset_num] = {
+            'factions': len(factions),
+            'mks': len(set(mks))
+        }
+
+    build_template(jinja_env, "members_index.html",
+                   get_context({
+                       "keys": sorted(counts, reverse=True),
+                       "knessets": counts,
+                        "url": FACTION_HOME_URL
+                   }),
+                   MEMBERS_HOME_URL)
 
     if os.environ.get("SKIP_STATIC") != "1":
         subprocess.check_call(["mkdir", "-p", "dist"])
