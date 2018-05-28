@@ -12,12 +12,14 @@
                     <h1><i class="fa fa-users"></i>כל הח"כים</h1>
                 </header>
                 <ul>
-                    {% for member in members %}
-                        <li><p class="item-title">
-                            <a href="{{ member.url }}">
-                                {{ member.first_name }} {{ member.last_name }}
-                            </a>
-                        </p></li>
+                    {% for knesset_num in keys %}
+                        <li>
+                            <p class="item-title">
+                                <a href="{{ url | replace('{knesset_num}', knesset_num) }}">
+הכנסת ה-{{ knesset_num }}                                </a>
+                            </p>
+                            <p>סיעות {{knessets[knesset_num].factions}}, חברי כנסת {{knessets[knesset_num].mks}}</p>
+                        </li>
                     {% endfor %}
                 </ul>
             </section>

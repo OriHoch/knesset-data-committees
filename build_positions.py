@@ -31,17 +31,11 @@ for descriptor, resource in zip(datapackage["resources"], resources):
     for member in resource:
         id = member["mk_individual_id"]
 
-        # convert to small photo url
-        if member["mk_individual_photo"]:
-            photo = member["mk_individual_photo"][:-4] + "-s" + member["mk_individual_photo"][-4:]
-        else:
-            photo = None
-
         output_members.append({
             "mk_individual_id": id,
             "FirstName": member["FirstName"],
             "LastName": member["LastName"],
-            "mk_individual_photo": photo
+            "mk_individual_photo": member["mk_individual_photo"]
         })
 
         for rows in member["positions"]:
