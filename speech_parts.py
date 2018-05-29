@@ -43,7 +43,7 @@ def get_speech_part_contexts(stream):
 def get_speech_parts(meeting):
     source_type, source = None, None
     if meeting["parts_filename"]:
-        parts_url = "http://storage.googleapis.com/knesset-data-pipelines/{}".format(meeting["parts_filename"])
+        parts_url = "http://storage.googleapis.com/knesset-data-pipelines/data/committees/meeting_protocols_parts/{}".format(meeting["parts_filename"])
         try:
             source_type, source = get_speech_parts_source(meeting, parts_url)
             stream = get_speech_parts_stream(source=source, headers=1)
