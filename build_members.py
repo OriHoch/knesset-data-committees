@@ -74,7 +74,7 @@ def main():
         elif descriptor["name"] == "kns_committeesession":
             for committee in resource:
                 # aggregate statistics only if there is a protocol and mks
-                if committee["text_file_name"] and committee["text_file_size"]:
+                if committee["text_filename"]:
                     knessetNum = committee["KnessetNum"]
 
                     if knessetNum not in committees:

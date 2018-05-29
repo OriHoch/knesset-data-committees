@@ -5,15 +5,6 @@ download:
   pipeline:
   - run: knesset.load_resource
     parameters:
-      path: committees/gcs_list_files/datapackage.json
-      resource: files
-  - run: filter
-    parameters:
-      resources: ["files"]
-      in:
-      - file_type: parts
-  - run: knesset.load_resource
-    parameters:
       app: people
       path: committees/joined-meeting-attendees-mks/datapackage.json
       resource: kns_committeesession
@@ -24,45 +15,6 @@ download:
   - run: dump.to_path
     parameters:
       out-path: data/committees
-
-join-meetings:
-  description: add the protocol parts file details
-  schedule:
-    crontab: "10 1 * * *"
-  dependencies:
-  - pipeline: download
-  pipeline:
-  - run: load_resource
-    parameters:
-      url: data/committees/datapackage.json
-      resource: files
-  - run: load_resource
-    parameters:
-      url: data/committees/datapackage.json
-      resource: kns_committeesession
-  - run: join
-    parameters:
-      source:
-        name: files
-        key: ["committee_session_id"]
-        delete: true
-      target:
-        name: kns_committeesession
-        key: ["CommitteeSessionID"]
-      fields:
-        parts_filename:
-          name: name
-        parts_filesize:
-          name: size
-  - run: knesset.dump_to_path
-    parameters:
-      out-path: data/committee-meetings
-      storage-url: http://storage.googleapis.com/knesset-data-pipelines/data/committees-build/committee-meetings
-  - run: knesset.dump_to_sql
-    parameters:
-      tables:
-        committees_build_committee_meetings:
-          resource-name: kns_committeesession
 
 download_members:
   description: downloads members data
@@ -84,7 +36,6 @@ build:
     crontab: "10 1 * * *"
   dependencies:
   - pipeline: download
-  - pipeline: join-meetings
   - pipeline: download_members
   pipeline:
   - run: load_resource
@@ -97,13 +48,15 @@ build:
       resource: mk_individual
   - run: load_resource
     parameters:
-      url: data/committee-meetings/datapackage.json
+      url: data/committees/datapackage.json
       resource: kns_committeesession
 #  - run: filter
 #    parameters:
 #      resources: kns_committeesession
 #      in:
-#        - CommitteeID: 922
+#      - CommitteeSessionID: 2068104
+#      - CommitteeSessionID: 2068105
+#      - CommitteeID: 922
   - run: build_meetings
   - run: knesset.dump_to_path
     parameters:
@@ -177,31 +130,21 @@ render_committees:
         committees_build_render_committees_stats:
           resource-name: committees_stats
 
-joined_mks:
-  description: downloads joined members data
-  pipeline:
-  - run: load_resource
-    parameters:
-      url: https://storage.googleapis.com/knesset-data-pipelines/data/people/members/joined-mks/datapackage.json
-      resource: mk_individual
-  - run: dump.to_path
-    parameters:
-      out-path: data/joined_mks
-
 create_members:
   schedule:
     crontab: "10 1 * * *"
   dependencies:
-  - pipeline: ./joined_mks
+  - pipeline: ./download
+  - pipeline: ./download_members
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/joined_mks/datapackage.json
+      url: data/members/datapackage.json
       resource: mk_individual
   - run: load_resource
     parameters:
-      url: data/people/committees/datapackage.json
+      url: data/committees/datapackage.json
       resource: kns_committeesession
   - run: build_members
 
@@ -209,12 +152,12 @@ build_positions:
   schedule:
     crontab: "10 1 * * *"
   dependencies:
-  - pipeline: ./joined_mks
+  - pipeline: ./download_members
   pipeline:
   # all these tables are loaded into memory
   - run: load_resource
     parameters:
-      url: data/joined_mks/datapackage.json
+      url: data/members/datapackage.json
       resource: mk_individual
   - run: build_positions
   - run: dump.to_path
@@ -251,58 +194,29 @@ sync:
   - pipeline: create_members
   - pipeline: create_factions
   pipeline:
-  - run: load_resource
+  - run: sync
     parameters:
-      url: data/committee-meetings/datapackage.json
-      resource: kns_committeesession
-  - run: load_resource
-    parameters:
-      url: data/committees/datapackage.json
-      resource: committee-meeting-attendees
-  - run: stream_remote_resources
-  - run: join
-    parameters:
-      source:
-        name: kns_committeesession
-        key: ["CommitteeSessionID"]
-        delete: true
-      target:
-        name: committee-meeting-attendees
-        key: ["meeting_id"]
-      full: false
-      fields:
-        meeting_topics:
-          name: topics
-        meeting_date:
-          name: StartDate
-        knesset_num:
-          name: KnessetNum
-  - run: sort
-    parameters:
-      resources: .*
-      sort-by: "{knesset_num}-{meeting_date}"
-  - run: dump.to_path
-    parameters:
-      out-path: data/attendance-joined-data
+      source: "./dist"
+      target: "gs://knesset-data-pipelines/data/dist"
 
-split-attendance-data:
-#  dependencies:
-#  - pipeline: ./join-attendance-data
-  pipeline:
-  - run: load_resource
-    parameters:
-      url: data/committees/datapackage.json
-      resource: kns_committee
-  - run: load_resource
-    parameters:
-      url: data/attendance-joined-data/datapackage.json
-      resource: committee-meeting-attendees
-  - run: filter
-    parameters:
-      resources: ["committee-meeting-attendees"]
-      in:
-      - knesset_num: 20
-  - run: attendance
-  - run: dump.to_path
-    parameters:
-      out-path: data/attendance/knesset-20
+#split-attendance-data:
+##  dependencies:
+##  - pipeline: ./join-attendance-data
+#  pipeline:
+#  - run: load_resource
+#    parameters:
+#      url: data/committees/datapackage.json
+#      resource: kns_committee
+#  - run: load_resource
+#    parameters:
+#      url: data/attendance-joined-data/datapackage.json
+#      resource: committee-meeting-attendees
+#  - run: filter
+#    parameters:
+#      resources: ["committee-meeting-attendees"]
+#      in:
+#      - knesset_num: 20
+#  - run: attendance
+#  - run: dump.to_path
+#    parameters:
+#      out-path: data/attendance/knesset-20
