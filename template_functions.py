@@ -1,6 +1,5 @@
 from jinja2 import Environment, FileSystemLoader, select_autoescape
-import os, logging
-import socket, datetime
+import os, logging, socket, datetime, json, re
 from constants import COMMITTEES_INDEX_URL, MEMBERS_HOME_URL
 
 
@@ -24,6 +23,8 @@ def build_template(jinja_env, template_name, context, output_name=None):
     template = get_jinja_template(jinja_env, template_name)
     with open(dist_file_name, "w") as f:
         f.write(template.render(context))
+    with open(re.sub(r'(.html)$', '.json', dist_file_name), 'w') as f:
+        json.dump(context, f)
 
 
 def get_context(context):
